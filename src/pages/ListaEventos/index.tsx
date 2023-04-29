@@ -22,40 +22,31 @@ interface ISessaoParametros{
     
   }
 
-const HistoricoConversao = () => {
+const ListaEventos = () => {
     const classes = useStyles();
     const session = useSelector( (state:ISessaoParametros) => state.session );
-    const [dadosHistoricoConversao,setDadosHistoricoConversao] = useState([]);
+    const [dadosEventos, setDadosEventos] = useState([]);
     const [loading, setLoading] = useState(true);
     
-    async function buscaHistorico(){
-        let _dadosHistorico = new Array();
-        return await api.post('api/conversao-historico/usuario',
-            { idUsuario: session.user.id },
+    async function buscaEventos(){
+        return await api.get('/eventos',
             { headers: {
                 'Authorization': `Bearer ${session.access_token.access_token}`
             } }).then( (result:any) => {
-                if(result.data){
-                 
+                if(result.data.data){
                     if(result.data.status !== false){
-                        setDadosHistoricoConversao(result.data);
+                        setDadosEventos(result.data.data);
                         setLoading(false)
                     }
-                    
-
                 }
-                
             }).catch( (error:any) => {
                 
             })
-
     }
     useEffect(() =>{
-        if(session !== null && session.access_token.access_token !== ""){
-            buscaHistorico();
-        }
-
-       
+        if(session !== null && session.access_token.access_token !== undefined && session.access_token.access_token !== ""){
+            buscaEventos();
+        } 
     },[session])
  
     return (<>
@@ -67,15 +58,13 @@ const HistoricoConversao = () => {
             <div style={{  display:'flex', flexDirection: 'column', marginTop: '5%', height: '75%', width: '100%', justifyContent:'center', alignItems:'center', overflow: 'auto' }} >
                 <Paper style={{ display:'flex', flexDirection: 'column', alignItems: 'center', padding: 10, minHeight: '50vh', height: '75% !important', width: '95vw', margin: 5 , overflow: 'auto' }}>
                     <div className={classes.info} >
-                        <div>
-                            Historico de Conversões
-                        </div>
+                        <div>Calendário de Eventos Esportivos</div>
                     </div>
                     <div style={{ display:'flex', flexDirection: 'column', alignItems: 'center', width: '93vw',height: '75vh', padding: 10}} >
-                        {dadosHistoricoConversao !== null && dadosHistoricoConversao !== undefined && Object.keys(dadosHistoricoConversao).length > 0 
-                            && dadosHistoricoConversao !== undefined  ? 
-                            (<TabelaResultado arDados={dadosHistoricoConversao}/>) : 
-                            (<><div> Nenhum histórico registrado.</div></>)
+                        {dadosEventos !== null && dadosEventos !== undefined && Object.keys(dadosEventos).length > 0 
+                            && dadosEventos !== undefined  ? 
+                            (<TabelaResultado arDados={dadosEventos}/>) : 
+                            (<><div> Nenhuma evento encontrada.</div></>)
                         } 
                     </div>
                 </Paper>
@@ -86,4 +75,4 @@ const HistoricoConversao = () => {
 
 }
 
-export default HistoricoConversao;
+export default ListaEventos;

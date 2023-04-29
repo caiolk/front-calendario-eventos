@@ -5,7 +5,6 @@ const useStyles = makeStyles((theme) => ({
       zIndex: theme.zIndex.drawer + 1,
       color: '#fff',
     },
-
     status_a:{
       color: 'green !important',
       fontWeight: 'bold'
@@ -24,10 +23,11 @@ const useStyles = makeStyles((theme) => ({
       width: '99%',
       padding: 5,
       color: '#fff',
-      fontWeight: 'bold '
+      fontWeight: 'bold'
     },
     tableFont:{
-      fontSize: 12
+      fontSize: 10,
+      textTransform: 'capitalize'
     }
   }));
 
