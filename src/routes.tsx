@@ -16,9 +16,8 @@ import { IsAuthenticated } from './auth'
 import { setSession } from './store/actions/Session.action';
 
 import Home from './pages/Home';
-import Taxa from './pages/Configuracao/Taxa';
 import Login from './pages/Login';
-import HistoricoConversao from './pages/HistoricoConversao';
+import ListaEventos from './pages/ListaEventos';
 
 interface ISessaoParametros{
   session:{
@@ -137,20 +136,11 @@ const MyToolbar = withStyles({
                     <ListItem 
                       button 
                       component={Link} 
-                      to={`/historico-conversao`} 
-                      onClick={onItemClick('HistoricoConversao')}>
-                        <ListItemText>Histórico das Conversão</ListItemText>
+                      to={`/lista-eventos`} 
+                      onClick={onItemClick('ListaEventos')}>
+                        <ListItemText>Listagem de eventos</ListItemText>
                     </ListItem>
-                    <ListItem 
-                      button 
-                      component={Link} 
-                      to={`/taxa`} 
-                      onClick={onItemClick('Taxa')}>
-                        <ListItemText>Taxas</ListItemText>
-                    </ListItem>
-                   
-                  </List>
-                
+                  </List>                
                 </Drawer>  
             <Routes>
               <Route
@@ -162,18 +152,10 @@ const MyToolbar = withStyles({
                 }
               />
               <Route
-                path="/taxa"
+                path="/lista-eventos"
                 element={
                   <PrivateRoute>
-                    <Taxa />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/historico-conversao"
-                element={
-                  <PrivateRoute>
-                    <HistoricoConversao />
+                    <ListaEventos />
                   </PrivateRoute>
                 }
               />

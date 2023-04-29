@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 
 
 import Box from '@mui/material/Box';
+import LinkIcon from '@mui/icons-material/Link';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -53,19 +54,14 @@ function stableSort(array, comparator) {
   return stabilizedThis.map((el) => el[0]);
 }
 
-
-
 const headCells = [
-  { id: 'strMoedaOrigem', numeric: false, disablePadding: true, label: 'Moeda Ori.', },
-  { id: 'strMoedaDestino', numeric: false, disablePadding: true, label: 'Moeda Dest.', },
-  { id: 'strFormaPagamento', numeric: false, disablePadding: true, label: 'Forma Pgto.', },
-  { id: 'flValorConversao', numeric: true, disablePadding: true, label: 'VL Conversão', },
-  { id: 'flTaxaPagamento', numeric: true, disablePadding: true, label: 'Taxa Pagamento', },
-  { id: 'flTaxaConversao', numeric: true, disablePadding: true, label: 'Taxa Conversão', },
-  { id: 'flValorMoedaDestinoConversao', numeric: true, disablePadding: true, label: 'VL Moeda Destino Conversão', },
-  { id: 'flValorUtilizadoConversao', numeric: true, disablePadding: true, label: 'VL Utilizado Conversão', },
-  { id: 'flValorCompradoMoedaDestino', numeric: true, disablePadding: true, label: 'VL Comprado Moeda Destino', },
-  { id: 'created_at', numeric: true, disablePadding: true, label: 'Data', },
+  { id: 'evento_titulo', numeric: false, disablePadding: true, label: 'Corrida', },
+  { id: 'cidade', numeric: false, disablePadding: true, label: 'Cidade', },
+  { id: 'uf', numeric: false, disablePadding: true, label: 'UF', },
+  { id: 'organizador.nome_fantasia', numeric: true, disablePadding: true, label: 'Organizador', },
+  { id: 'evento_data_realizacao', numeric: true, disablePadding: true, label: 'Realização', },
+  { id: 'url_pagina', numeric: true, disablePadding: true, label: 'Inscrição', },
+  { id: 'created_at', numeric: true, disablePadding: true, label: 'Registrado', },
 ];
 
 function EnhancedTableHead(props) {
@@ -85,10 +81,10 @@ function EnhancedTableHead(props) {
         {headCells.map((headCell) => (
           <TableCell
             key={headCell.id}
-            align={ headCell.style !== ""  ? headCell.style : ( headCell.numeric ? 'right' : 'left' )
-               }
+            align={'center'}
             padding={headCell.disablePadding ? 'none' : 'normal'}
             sortDirection={orderBy === headCell.id ? order : false}
+            style={{ fontWeight: 'bold' }}
           >
             <TableSortLabel
               active={orderBy === headCell.id}
@@ -130,32 +126,24 @@ export default function EnhancedTable(props) {
   const [loading,setLoading] = useState(true);
   const [data,setData] = useState([]);
   const { arDados, arPeriodo, tipo } = props;
-  let intTotalHistoricos = 0;
+  let intTotal = 0;
   
   useEffect(() => {
         setData(arDados) 
- 
   },[arDados])
 
   useEffect(() => {
-    
-   
     if(data.length > 0) {
       setLoading(false)
-
     }
-      
-    
-
-},[data])
+  },[data])
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
   };
   
-  const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - data.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - data.length) : 0;
 
   return (
     <>
@@ -192,11 +180,9 @@ export default function EnhancedTable(props) {
                         .map((row, index) => {
                           let data =  (row.created_at).split('T')
                           let _data = data[0].split('-').reverse().join('/')
-                          let hora = data[1].split('.')
-                          hora = hora[0]
-                          intTotalHistoricos++;
+                          let _realizacao = row.evento_data_realizacao.split('-').reverse().join('/')
+                          intTotal++;
                           const labelId = `enhanced-table-checkbox-${index}`;
-                          console.log(row)
                           return (
                             <TableRow
                               hover
@@ -205,39 +191,14 @@ export default function EnhancedTable(props) {
                               tabIndex={-1}
                               key={index}
                             >
-                              <TableCell padding="checkbox">
-                              </TableCell>
-                              <TableCell align="left" className={classes.tableFont} >
-                                {String(row.strMoedaOrigem)}
-                              </TableCell>
-                              <TableCell align="left" className={classes.tableFont} >
-                                {String(row.strMoedaDestino)}
-                              </TableCell>
-                              <TableCell align="left" className={classes.tableFont} >
-                                {String(row.strFormaPagamento)}
-                              </TableCell>
-                              <TableCell align="left" className={classes.tableFont} >
-                                {row.flValorConversao.toFixed(2).replace('.',',')}
-                              </TableCell>
-                              <TableCell align="left" className={classes.tableFont} >
-                                {row.flTaxaConversao.toFixed(2).replace('.',',')}
-                              </TableCell>
-                              <TableCell align="left" className={classes.tableFont} >
-                                {row.flTaxaPagamento.toFixed(2).replace('.',',')}
-                              </TableCell>
-                              <TableCell align="left" className={classes.tableFont} >
-                                {row.flValorMoedaDestinoConversao.toFixed(2).replace('.',',')}
-                              </TableCell>
-                              <TableCell align="left" className={classes.tableFont} >
-                                {row.flValorUtilizadoConversao.toFixed(2).replace('.',',')}
-                              </TableCell>
-                              <TableCell align="left" className={classes.tableFont} >
-                                {row.flValorCompradoMoedaDestino.toFixed(2).replace('.',',')}
-                              </TableCell>
-                              <TableCell align="0" className={classes.tableFont} >
-                                {`${_data} ${hora}`}
-                              </TableCell>
-                              
+                              <TableCell padding="checkbox"></TableCell>
+                              <TableCell align="left" className={classes.tableFont} > {String(row.evento_titulo)}</TableCell>
+                              <TableCell align="center" className={classes.tableFont} > {String(row.cidade)} </TableCell>
+                              <TableCell align="center" className={classes.tableFont} >   {String(row.uf)} </TableCell>
+                              <TableCell align="center" className={classes.tableFont} > {String(row.organizador.nome_fantasia)} </TableCell>
+                              <TableCell align="center" className={classes.tableFont} > {String(_realizacao)} </TableCell>
+                              <TableCell align="center" className={classes.tableFont} > <a target={'_blank'} href={String(row.url_pagina)}><LinkIcon/></a></TableCell>
+                              <TableCell align="center" className={classes.tableFont} > {`${_data}`} </TableCell>
                             </TableRow>
                           );
                         })}
@@ -253,16 +214,15 @@ export default function EnhancedTable(props) {
                     </TableBody>
                   </Table>
                 </TableContainer>
-            
               </Paper>
             </Box>
           <hr style={{ width: '99%' }} />
           <div style={{ width: '100%', marginLeft: '-1%'}} >
-          { intTotalHistoricos>0 ? 
+          { intTotal>0 ? 
               (<div style={{display:'flex', flexDirection: 'column', fontWeight: '100',}} >
                 <div style={{display:'flex', flexDirection: 'row', justifyContent:'flex-end', padding : 5}} >
                   <div style={{ fontWeight:'bold', marginRight: 15 }} >Total Registros: </div>
-                  <div>{intTotalHistoricos} </div>
+                  <div>{intTotal} </div>
                 </div>
               </div>) : 
               (<></>) 
