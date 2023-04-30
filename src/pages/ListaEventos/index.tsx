@@ -33,9 +33,9 @@ const ListaEventos = () => {
             { headers: {
                 'Authorization': `Bearer ${session.access_token.access_token}`
             } }).then( (result:any) => {
-                if(result.data.data){
+                if(result.data.data.data){
                     if(result.data.status !== false){
-                        setDadosEventos(result.data.data);
+                        setDadosEventos(result.data.data.data);
                         setLoading(false)
                     }
                 }
