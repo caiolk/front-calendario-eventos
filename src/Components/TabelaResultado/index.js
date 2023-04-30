@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
-
+import ChipCustom from '../ChipCustom';
 import Box from '@mui/material/Box';
+import Chip from '@mui/material/Chip';
 import LinkIcon from '@mui/icons-material/Link';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -12,7 +13,6 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import TableSortLabel from '@mui/material/TableSortLabel';
 import Paper from '@mui/material/Paper';
-import Checkbox from '@mui/material/Checkbox';
 import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import useStyles from './styles'
@@ -61,6 +61,7 @@ const headCells = [
   { id: 'organizador.nome_fantasia', numeric: true, disablePadding: true, label: 'Organizador', },
   { id: 'evento_data_realizacao', numeric: true, disablePadding: true, label: 'Realização', },
   { id: 'url_pagina', numeric: true, disablePadding: true, label: 'Inscrição', },
+  { id: 'status_string', numeric: true, disablePadding: true, label: 'Status', },
   { id: 'created_at', numeric: true, disablePadding: true, label: 'Registrado', },
 ];
 
@@ -192,13 +193,14 @@ export default function EnhancedTable(props) {
                               key={index}
                             >
                               <TableCell padding="checkbox"></TableCell>
-                              <TableCell align="left" className={classes.tableFont} > {String(row.evento_titulo)}</TableCell>
-                              <TableCell align="center" className={classes.tableFont} > {String(row.cidade)} </TableCell>
-                              <TableCell align="center" className={classes.tableFont} >   {String(row.uf)} </TableCell>
-                              <TableCell align="center" className={classes.tableFont} > {String(row.organizador.nome_fantasia)} </TableCell>
-                              <TableCell align="center" className={classes.tableFont} > {String(_realizacao)} </TableCell>
-                              <TableCell align="center" className={classes.tableFont} > <a target={'_blank'} href={String(row.url_pagina)}><LinkIcon/></a></TableCell>
-                              <TableCell align="center" className={classes.tableFont} > {`${_data}`} </TableCell>
+                              <TableCell align="left"   className={classes.tableFont}> {String(row.evento_titulo)} </TableCell>
+                              <TableCell align="center" className={classes.tableFont}> {String(row.cidade)} </TableCell>
+                              <TableCell align="center" className={classes.tableFont}> {String(row.uf)} </TableCell>
+                              <TableCell align="center" className={classes.tableFont}> {String(row.organizador.nome_fantasia)} </TableCell>
+                              <TableCell align="center" className={classes.tableFont}> {String(_realizacao)} </TableCell>
+                              <TableCell align="center" className={classes.tableFont}> <a target={'_blank'} href={String(row.url_pagina)}><LinkIcon/></a> </TableCell>
+                              <TableCell align="center" className={classes.tableFont}> <ChipCustom desc={String(row.status_string)}/></TableCell>
+                              <TableCell align="center" className={classes.tableFont}> {`${_data}`} </TableCell>
                             </TableRow>
                           );
                         })}
