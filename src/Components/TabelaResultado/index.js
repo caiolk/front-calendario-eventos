@@ -156,7 +156,7 @@ export default function EnhancedTable(props) {
           
           <hr style={{ width: '99%' }} />
           <div style={{ width: '99%',  height: '95%' }}>
-            <Box sx={{ width: '99%', overflow: 'auto', height: '92%' }}>
+            <Box sx={{ width: '99%', overflow: 'auto', height: '95%' }}>
               <Paper sx={{ width: '100%', mb: 2 }}>
                 <TableContainer>
                   <Table

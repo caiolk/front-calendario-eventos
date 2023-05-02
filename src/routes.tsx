@@ -17,7 +17,7 @@ import { setSession } from './store/actions/Session.action';
 
 import Home from './pages/Home';
 import Login from './pages/Login';
-import ListaEventos from './pages/ListaEventos';
+import Eventos from './pages/Eventos';
 
 interface ISessaoParametros{
   session:{
@@ -136,8 +136,8 @@ const MyToolbar = withStyles({
                     <ListItem 
                       button 
                       component={Link} 
-                      to={`/lista-eventos`} 
-                      onClick={onItemClick('ListaEventos')}>
+                      to={`/eventos`} 
+                      onClick={onItemClick('Eventos')}>
                         <ListItemText>Listagem de eventos</ListItemText>
                     </ListItem>
                   </List>                
@@ -152,10 +152,10 @@ const MyToolbar = withStyles({
                 }
               />
               <Route
-                path="/lista-eventos"
+                path="/eventos"
                 element={
                   <PrivateRoute>
-                    <ListaEventos />
+                    <Eventos />
                   </PrivateRoute>
                 }
               />
