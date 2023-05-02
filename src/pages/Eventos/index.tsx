@@ -23,7 +23,7 @@ interface ISessaoParametros{
     
   }
 
-const ListaEventos = () => {
+const Eventos = () => {
     const classes = useStyles();
     const session = useSelector( (state:ISessaoParametros) => state.session );
     const [dadosEventos, setDadosEventos] = useState([]);
@@ -173,4 +173,4 @@ const ListaEventos = () => {
 
 }
 
-export default ListaEventos;
+export default Eventos;
