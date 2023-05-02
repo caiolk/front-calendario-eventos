@@ -56,19 +56,20 @@ const Eventos = () => {
     async function buscar(){
         setLoading(true);
         let params = new Array();
-        if(eventoRef.current?.value !== "" && eventoRef.current?.value !== undefined){
+        if(eventoRef.current?.value !== undefined){
             params.push(`evento_titulo=${eventoRef.current?.value}`);
         }
-        if(ufRef.current?.value !== "" && ufRef.current?.value !== undefined){
+        console.log(ufRef.current?.value)
+        if(ufRef.current?.value !== undefined){
             params.push(`uf=${ufRef.current?.value}`);
         }
-        if(statusRef.current?.value !== "" && statusRef.current?.value !== undefined){
+        if(statusRef.current?.value !== undefined){
             params.push(`status_string=${statusRef.current?.value}`);
         }
-        if(params[0] !== ""){
-            setBuscaParametros(params.join("&"))
-            setDadosEventos([]);
-        }
+        
+        setBuscaParametros(params.join("&"))
+        setDadosEventos([]);
+    
     }
 
     useEffect(() =>{
@@ -93,7 +94,8 @@ const Eventos = () => {
                         <div className={classes.divMoeda} >
                             <TextField
                                 label="Evento"
-                                autoComplete='false'
+                                autoComplete={'false'}
+                                size={'small'}
                                 className={classes.divValor}
                                 inputRef={eventoRef}
                                 defaultValue={""}
@@ -110,6 +112,7 @@ const Eventos = () => {
                                 id={`uf`}
                                 select
                                 label="UF"
+                                size={'small'}
                                 inputRef={ufRef}
                                 InputLabelProps={{ shrink: true }}
                                 SelectProps={{ native: true }}
@@ -129,6 +132,7 @@ const Eventos = () => {
                                 select
                                 inputRef={statusRef}
                                 label="Status"
+                                size={'small'}
                                 InputLabelProps={{ shrink: true }}
                                 SelectProps={{ native: true }}
                                 value={status}
