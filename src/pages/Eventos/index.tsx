@@ -91,73 +91,72 @@ const Eventos = () => {
             </div>
             <div className={classes.divPrincipal} >
                 <Paper className={classes.paper}>
-                        <div className={classes.divMoeda} >
-                            <TextField
-                                label="Evento"
-                                autoComplete={'false'}
-                                size={'small'}
-                                className={classes.divValor}
-                                inputRef={eventoRef}
-                                defaultValue={""}
-                                onChange={(event:any) => setEvento(event.value)}
-                                id={`evento`}
-                                InputLabelProps={{
-                                    shrink: true
-                                }}
-                                InputProps={{ }}
-                                inputProps={{ maxLength: 35 }}
-                            />
-                            <TextField
-                                className={classes.textFieldMoeda}
-                                id={`uf`}
-                                select
-                                label="UF"
-                                size={'small'}
-                                inputRef={ufRef}
-                                InputLabelProps={{ shrink: true }}
-                                SelectProps={{ native: true }}
-                                value={uf}
-                                onChange={(event:any) => { setUF(event.value)}} 
-                            >
-                                <option value={''}> Todos </option>
-                                <option value={'PR'}> PR </option>
-                                <option value={'SC'}> SC </option>
-                                <option value={'RS'}> RS </option>
-                                <option value={'SP'}> SP </option>
-                                <option value={'RJ'}> RJ </option>
-                            </TextField>
-                            <TextField
-                                className={classes.textFieldMoeda}
-                                id={`status`}
-                                select
-                                inputRef={statusRef}
-                                label="Status"
-                                size={'small'}
-                                InputLabelProps={{ shrink: true }}
-                                SelectProps={{ native: true }}
-                                value={status}
-                                onChange={(event:any) => setStatus(event.value)} 
-                            >
-                                <option value={''}> Todos </option>
-                                <option value={'Aberto'}> Aberto </option>
-                                <option value={'Encerrado'}> Encerrado </option>
-                                <option value={'Cancelado'}> Cancelado </option>
-                                <option value={'Esgotado'}>  Esgotado </option>
+                        <div style={{display:'flex', flexDirection: 'row', alignItems: 'center', justifyContent:'center', width: '95%' }}>
+                            <div className={classes.divCampos} >
+                                <TextField
+                                    label="Evento"
+                                    autoComplete={'false'}
+                                    size={'small'}
+                                    className={classes.divValor}
+                                    inputRef={eventoRef}
+                                    defaultValue={""}
+                                    onChange={(event:any) => setEvento(event.value)}
+                                    id={`evento`}
+                                    InputLabelProps={{
+                                        shrink: true
+                                    }}
+                                    InputProps={{ }}
+                                    inputProps={{ maxLength: 35 }}
+                                />
+                                <TextField
+                                    className={classes.textFieldMoeda}
+                                    id={`uf`}
+                                    select
+                                    label="UF"
+                                    size={'small'}
+                                    inputRef={ufRef}
+                                    InputLabelProps={{ shrink: true }}
+                                    SelectProps={{ native: true }}
+                                    value={uf}
+                                    onChange={(event:any) => { setUF(event.value)}} 
+                                >
+                                    <option value={''}> Todos </option>
+                                    <option value={'PR'}> PR </option>
+                                    <option value={'SC'}> SC </option>
+                                    <option value={'RS'}> RS </option>
+                                    <option value={'SP'}> SP </option>
+                                    <option value={'RJ'}> RJ </option>
+                                </TextField>
+                                <TextField
+                                    className={classes.textFieldMoeda}
+                                    id={`status`}
+                                    select
+                                    inputRef={statusRef}
+                                    label="Status"
+                                    size={'small'}
+                                    InputLabelProps={{ shrink: true }}
+                                    SelectProps={{ native: true }}
+                                    value={status}
+                                    onChange={(event:any) => setStatus(event.value)} 
+                                >
+                                    <option value={''}> Todos </option>
+                                    <option value={'Aberto'}> Aberto </option>
+                                    <option value={'Encerrado'}> Encerrado </option>
+                                    <option value={'Cancelado'}> Cancelado </option>
+                                    <option value={'Esgotado'}>  Esgotado </option>
 
-                            </TextField>
-                            <Button 
-                                style={{ 
-                                    width:'25vw',
-                                    height:'35px',
-                                    background: '#04ccb9',
-                                    color:'#fff',
-                                    fontSize: '12px'
-                                } }
-                                variant="contained" 
-                                size="small"
-                                onClick={() => buscar()} >
-                                Buscar
-                            </Button>   
+                                </TextField>
+                            </div>
+                            <div className={classes.divButton} >
+                                <Button 
+                                    className={classes.buttonBuscar}
+                                    style={{ background: '#04ccb9', color:'#fff' }}
+                                    variant="contained" 
+                                    size="small"
+                                    onClick={() => buscar()} >
+                                    Buscar
+                                </Button>
+                            </div>   
                         </div>
                 </Paper>
         </div>

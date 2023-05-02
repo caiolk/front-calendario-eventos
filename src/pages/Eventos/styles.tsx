@@ -6,26 +6,40 @@ const useStyles = makeStyles(() => ({
     flexDirection: 'row', 
     height: '75%', 
     width: '100%', 
-    justifyContent:'space-evenly', 
-    alignItems:'center'
+    alignItems:'center',
+    justifyContent: 'center'
   },
   paper:{
     display:'flex', 
     flexDirection: 'row', 
     alignItems: 'center', 
     justifyContent:'space-evenly', 
-    padding: 10, 
+    padding: 5, 
     height: '75% !important', 
-    width: '95vw', 
-    margin: 5
+    width: '95vw'
   },
-  divMoeda:{
+  divCampos:{
     display:'flex', 
     flexDirection: 'row', 
     alignItems: 'center', 
     justifyContent:'space-evenly', 
     width: '100%', 
     padding: 5
+  },
+  divButton:{
+    display:'flex', 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent:'end', 
+    width: '100%', 
+    padding: 5
+  },
+  buttonBuscar:{
+    width:'10vw',
+    height:'35px',
+    background: '#04ccb9',
+    color:'#fff',
+    fontSize: '12px'
   },
   textFieldMoeda:{
     width:'12.5vw', 
@@ -69,7 +83,7 @@ const useStyles = makeStyles(() => ({
       justifyContent: 'space-around',
       backgroundColor: 'rgb(28, 67, 99)',
       borderRadius:'5px',
-      width: '95%',
+      width: '96%',
       padding: 5,
       color: '#fff',
       fontWeight: 'bold'
