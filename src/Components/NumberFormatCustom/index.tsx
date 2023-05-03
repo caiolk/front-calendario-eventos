@@ -1,5 +1,5 @@
 import React from 'react';
-import NumberFormat from 'react-number-format';
+import { NumberFormatBase } from 'react-number-format';
 
 
 
@@ -7,7 +7,7 @@ const NumberFormatCustom = (props:any) => {
     const { inputRef, onChange, decimalScale, ...other } = props;
     
     return (
-        <NumberFormat
+        <NumberFormatBase
             {...other}
             getInputRef={inputRef}
             onValueChange={(values) => {
