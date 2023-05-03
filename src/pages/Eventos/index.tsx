@@ -1,10 +1,14 @@
 import { TextField, Paper, Select , Button, Snackbar, Alert, Backdrop, CircularProgress } from '@mui/material';
 import React, { useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import SearchBar from '../../Components/SearchBar';
 import TabelaResultado from '../../Components/TabelaResultado';
 import api from '../../services/api';
 import useStyles from './styles';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import { DatePicker } from '@mui/x-date-pickers'
+import ptBR from 'dayjs/locale/pt-br';
+import moment from "moment";
 
 interface ISessaoParametros{
     session:{
@@ -30,9 +34,16 @@ const Eventos = () => {
     const [evento,setEvento] = useState("");
     const [uf,setUF] = useState("");
     const [status,setStatus] = useState("");
+    const [cidade,setCidade] = useState("");
+    const [dataInicio,setDataInicio] = useState("");
+    const [dataFim,setDataFim] = useState("");
+    
     const eventoRef = useRef<HTMLInputElement>(null);
     const ufRef = useRef<HTMLInputElement>(null);
     const statusRef = useRef<HTMLInputElement>(null);
+    const cidadeRef = useRef<HTMLInputElement>(null);
+    const dataInicioRef = useRef<HTMLInputElement>(null);
+    const dataFimRef = useRef<HTMLInputElement>(null);
     const [buscaParametros,setBuscaParametros] = useState("");
     const [loading, setLoading] = useState(true);
     
@@ -66,7 +77,28 @@ const Eventos = () => {
         if(statusRef.current?.value !== undefined){
             params.push(`status_string=${statusRef.current?.value}`);
         }
-        
+        if(cidadeRef.current?.value !== undefined){
+            params.push(`cidade=${cidadeRef.current?.value}`);
+        }
+        if(dataInicioRef.current?.value !== undefined){
+            let _dataInicio = "";
+            if(dataInicioRef.current?.value !== ""){
+                let _mesInicio = String(moment(dataInicioRef.current?.value, "MM/YYYY").locale('ptBR').month()+1).padStart(2, "0")
+                let _anoInicio = String(moment(dataInicioRef.current?.value, "MM/YYYY").locale('ptBR').year())
+                _dataInicio = `${_anoInicio}-${_mesInicio}`
+            }
+            
+            params.push(`data_evento_inicio=${_dataInicio}`);
+        }
+        if(dataFimRef.current?.value !== undefined){
+            let _dataFim = "";
+            if(dataFimRef.current?.value !== ""){
+                let _mesFim = String(moment(dataFimRef.current?.value, "MM/YYYY").month()+1).padStart(2, "0")
+                let _anoFim = String(moment(dataFimRef.current?.value, "MM/YYYY").year())
+                _dataFim = `${_anoFim}-${_mesFim}`
+            }
+            params.push(`data_evento_fim=${_dataFim}`);
+        }
         setBuscaParametros(params.join("&"))
         setDadosEventos([]);
     
@@ -91,7 +123,7 @@ const Eventos = () => {
             </div>
             <div className={classes.divPrincipal} >
                 <Paper className={classes.paper}>
-                        <div style={{display:'flex', flexDirection: 'row', alignItems: 'center', justifyContent:'center', width: '95%' }}>
+                        <div style={{ display:'flex', flexDirection: 'row', alignItems: 'center', justifyContent:'center', width: '95%' }}>
                             <div className={classes.divCampos} >
                                 <TextField
                                     label="Evento"
@@ -109,7 +141,6 @@ const Eventos = () => {
                                     inputProps={{ maxLength: 35 }}
                                 />
                                 <TextField
-                                    className={classes.textFieldMoeda}
                                     id={`uf`}
                                     select
                                     label="UF"
@@ -128,7 +159,6 @@ const Eventos = () => {
                                     <option value={'RJ'}> RJ </option>
                                 </TextField>
                                 <TextField
-                                    className={classes.textFieldMoeda}
                                     id={`status`}
                                     select
                                     inputRef={statusRef}
@@ -146,6 +176,39 @@ const Eventos = () => {
                                     <option value={'Esgotado'}>  Esgotado </option>
 
                                 </TextField>
+                                <TextField
+                                    label="Cidade"
+                                    autoComplete={'false'}
+                                    size={'small'}
+                                    className={classes.divValor}
+                                    inputRef={cidadeRef}
+                                    defaultValue={""}
+                                    onChange={(event:any) => setCidade(event.value)}
+                                    id={`cidade`}
+                                    InputLabelProps={{
+                                        shrink: true
+                                    }}
+                                    InputProps={{ }}
+                                    inputProps={{ maxLength: 35 }}
+                                />
+                                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={ptBR}>
+                                    <DatePicker 
+                                        label={'Inicio'} 
+                                        views={['year', 'month']}
+                                        format='MM/YYYY'
+                                        inputRef={dataInicioRef} 
+                                        slotProps={{ textField: { size: 'small' } }}
+                                        onChange={(event:any) => setDataInicio(event.value)}
+                                        />
+                                    <DatePicker 
+                                        label={'Fim'} 
+                                        views={['year', 'month']}
+                                        format='MM/YYYY'
+                                        inputRef={dataFimRef} 
+                                        slotProps={{ textField: { size: 'small' } }}
+                                        onChange={(event:any) => setDataFim(event.value)}
+                                        />
+                                </LocalizationProvider>
                             </div>
                             <div className={classes.divButton} >
                                 <Button 
