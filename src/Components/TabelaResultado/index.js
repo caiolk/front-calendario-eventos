@@ -151,11 +151,12 @@ export default function EnhancedTable(props) {
   };
   
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - data.length) : 0;
-  function openModalRef(){
+  function openModalRef(uuid){
   
-    modalRef.current?.openModal();
+    modalRef.current?.openModal(uuid);
     
   }
+
   return (
     <>
     { loading === true ?
@@ -217,7 +218,7 @@ export default function EnhancedTable(props) {
                                       style={{ background: 'rgb(64 144 213)' }}
                                       variant="contained" 
                                       size="small"
-                                      onClick={() => {openModalRef()} } >
+                                      onClick={() => {openModalRef(row.uuid)} } >
                                       <EditIcon  style={{fontSize : '16px'}}/>
                                   </Button>
                                   <Button 

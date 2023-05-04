@@ -19,7 +19,7 @@ const style = {
 };
 
 export interface IModalHandles {
-  openModal: () => void;
+  openModal: (uuid:string) => void;
   closeModal : () => void;
 }
 
@@ -35,15 +35,19 @@ export interface IModalHandles {
 const BasicModal: React.ForwardRefRenderFunction<IModalHandles> = (props, ref) => {
 
   const [open, setOpen] = useState(false);
-  const [arDados, setArDados] = useState({});
+  const [uuidEvento, setUuidEvento] = useState("");
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
   
-  const openModal = useCallback( () => {
+  const openModal = useCallback( (uuid:string) => {
+        if(uuid!==""){
+            setUuidEvento(uuid);
+        }
       setOpen(true);
   },[] );
 
   const closeModal = useCallback( () => {
+    setUuidEvento("");
     setOpen(false);
   },[] );
 
@@ -56,7 +60,6 @@ const BasicModal: React.ForwardRefRenderFunction<IModalHandles> = (props, ref) =
 
   return (
     <div>
-      
       <Modal
         open={open}
         onClose={handleClose}
