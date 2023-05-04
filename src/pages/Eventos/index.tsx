@@ -37,7 +37,6 @@ const Eventos = () => {
     const [cidade,setCidade] = useState("");
     const [dataInicio,setDataInicio] = useState("");
     const [dataFim,setDataFim] = useState("");
-    
     const eventoRef = useRef<HTMLInputElement>(null);
     const ufRef = useRef<HTMLInputElement>(null);
     const statusRef = useRef<HTMLInputElement>(null);
@@ -103,7 +102,7 @@ const Eventos = () => {
         setDadosEventos([]);
     
     }
-
+    
     useEffect(() =>{
         if((session !== null && session.access_token.access_token !== undefined && session.access_token.access_token !== "") || buscaParametros !== ""){
             buscaEventos(buscaParametros);
