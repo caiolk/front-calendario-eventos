@@ -1,11 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 
 import ChipCustom from '../ChipCustom';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 import LinkIcon from '@mui/icons-material/Link';
 import Table from '@mui/material/Table';
+import Button from '@mui/material/Button';
+
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
@@ -17,7 +21,7 @@ import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import useStyles from './styles'
 import { visuallyHidden } from '@mui/utils';
-
+import BasicModal from '../../Components/BasicModal';
 
 
 function descendingComparator(a, b, orderBy) {
@@ -57,12 +61,13 @@ function stableSort(array, comparator) {
 const headCells = [
   { id: 'evento_titulo', numeric: false, disablePadding: true, label: 'Corrida', },
   { id: 'cidade', numeric: false, disablePadding: true, label: 'Cidade', },
-  { id: 'uf', numeric: false, disablePadding: true, label: 'UF', },
-  { id: 'organizador.nome_fantasia', numeric: true, disablePadding: true, label: 'Organizador', },
-  { id: 'evento_data_realizacao', numeric: true, disablePadding: true, label: 'Realização', },
-  { id: 'url_pagina', numeric: true, disablePadding: true, label: 'Inscrição', },
-  { id: 'status_string', numeric: true, disablePadding: true, label: 'Status', },
-  { id: 'created_at', numeric: true, disablePadding: true, label: 'Registrado', },
+  { id: 'uf', numeric: false, disablePadding: false, label: 'UF', },
+  { id: 'organizador.nome_fantasia', numeric: false, disablePadding: true, label: 'Organizador', },
+  { id: 'evento_data_realizacao', numeric: false, disablePadding: true, label: 'Realização', },
+  { id: 'url_pagina', numeric: false, disablePadding: true, label: 'Inscrição', },
+  { id: 'status_string', numeric: false, disablePadding: true, label: 'Status', },
+  { id: 'created_at', numeric: false, disablePadding: true, label: 'Registrado', },
+  { id: 'acoes', numeric: false, disablePadding: true, label: 'Ações', },
 ];
 
 function EnhancedTableHead(props) {
@@ -72,7 +77,7 @@ function EnhancedTableHead(props) {
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
   };
-
+  
   return (
     
     <TableHead >
@@ -127,6 +132,7 @@ export default function EnhancedTable(props) {
   const [loading,setLoading] = useState(true);
   const [data,setData] = useState([]);
   const { arDados, arPeriodo, tipo } = props;
+  const modalRef = useRef(null);
   let intTotal = 0;
   
   useEffect(() => {
@@ -145,6 +151,11 @@ export default function EnhancedTable(props) {
   };
   
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - data.length) : 0;
+  function openModalRef(uuid){
+  
+    modalRef.current?.openModal(uuid);
+    
+  }
 
   return (
     <>
@@ -201,6 +212,24 @@ export default function EnhancedTable(props) {
                               <TableCell align="center" className={classes.tableFont}> <a target={'_blank'} href={String(row.url_pagina)}><LinkIcon/></a> </TableCell>
                               <TableCell align="center" className={classes.tableFont}> <ChipCustom desc={String(row.status_string)}/></TableCell>
                               <TableCell align="center" className={classes.tableFont}> {`${_data}`} </TableCell>
+                              <TableCell align="center" className={classes.tableFont}> 
+                                <div style={{display:'flex', flexDirection: 'row', justifyContent:'space-evenly'}}> 
+                                  <Button 
+                                      style={{ background: 'rgb(64 144 213)' }}
+                                      variant="contained" 
+                                      size="small"
+                                      onClick={() => {openModalRef(row.uuid)} } >
+                                      <EditIcon  style={{fontSize : '16px'}}/>
+                                  </Button>
+                                  <Button 
+                                      style={{ width: '12px', background: 'rgb(205 17 17)' }}
+                                      variant="contained" 
+                                      size="small"
+                                      onClick={() => {}} >
+                                      <DeleteIcon style={{fontSize : '16px'}}/>
+                                  </Button>  
+                                </div>
+                              </TableCell> 
                             </TableRow>
                           );
                         })}
@@ -231,6 +260,7 @@ export default function EnhancedTable(props) {
             }
           </div>
           </div>
+          <BasicModal ref={modalRef}  />
           </>
         )}
     </>
