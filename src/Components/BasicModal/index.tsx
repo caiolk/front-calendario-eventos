@@ -37,6 +37,7 @@ const BasicModal: React.ForwardRefRenderFunction<IModalHandles> = (props, ref) =
   const handleClose = () => setOpen(false);
   
   const openModal = useCallback( (uuid:string) => {
+      setDadosEventos({});
       if(uuid!==""){
           buscaEventos(uuid)
       }
@@ -74,8 +75,7 @@ const BasicModal: React.ForwardRefRenderFunction<IModalHandles> = (props, ref) =
             setDadosEventos({});
             setLoading(false);
         })
-}
-console.log(Object.keys(dadosEventos).length)
+  }
 
   return (
     <div>
