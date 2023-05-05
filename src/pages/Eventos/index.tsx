@@ -235,7 +235,6 @@ const Eventos = () => {
                 </Paper>
             </div>
         </>)
-
 }
 
 export default Eventos;
