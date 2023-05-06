@@ -6,7 +6,6 @@ const useStyles = makeStyles(() => ({
     flexDirection: 'row', 
     height: '75%', 
     width: '100%', 
-    alignItems:'center',
     justifyContent: 'center'
   },
   paper:{

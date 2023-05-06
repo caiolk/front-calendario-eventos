@@ -25,6 +25,7 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam) => {
   const eventoTituloRef = useRef<HTMLInputElement>(null);
   const cidadeRef = useRef<HTMLInputElement>(null);
   const ufRef = useRef<HTMLInputElement>(null);
+  const urlPaginaRef = useRef<HTMLInputElement>(null);
   const statusRef = useRef<HTMLInputElement>(null);
   const dataEventoRef = useRef<HTMLInputElement>(null);
   const ativoRef = useRef<HTMLInputElement>(null);
@@ -41,85 +42,67 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam) => {
 
   return (
     <div style={{width : '100%'}}>
-      <div className={classes.divPrincipal}>
-        <div style={{display : 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center',  }} >
-          <TextField 
-            label="Título Evento" autoComplete={'false'} size={'small'} className={classes.divValor}
-            defaultValue={eventoDetalhes.eventoDetalhes.evento_titulo} onChange={(event:any) => {}}
-            id={`evento_titulo`}
-            InputLabelProps={{ shrink: true }}
-            inputProps={{ maxLength: 35 }}
-            inputRef={eventoTituloRef}
-          />
-          <TextField 
-            select id={`uf`} label="UF" size={'small'}
-            InputLabelProps={{ shrink: true }}
-            SelectProps={{ native: true }}
-            onChange={(event:any) => setUF(event.value) } 
-            value={uf}
-            inputRef={ufRef}
-          >
-            <option value={'-'} > -  </option>
-            <option value={'PR'}> PR </option>
-            <option value={'SC'}> SC </option>
-            <option value={'RS'}> RS </option>
-            <option value={'SP'}> SP </option>
-            <option value={'RJ'}> RJ </option>
-          </TextField>
-          <TextField 
-            id={`cidade`} label="Cidade" autoComplete={'false'} size={'small'} className={classes.divValor}
-            defaultValue={eventoDetalhes.eventoDetalhes.cidade} onChange={(event:any) => setCidade(event.value)}
-            InputLabelProps={{ shrink: true }} inputProps={{ maxLength: 35 }}
-            inputRef={cidadeRef}
-          />
-        </div>
-      </div> 
-      <div style={{display : 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center',  }} >
+      <div style={{display : 'flex', flexDirection: 'row',  justifyContent: 'space-between', width: '99%', margin: '5px'  }} >
         <TextField 
-          label="Url Inscrição" autoComplete={'false'} size={'small'} className={classes.divValor}
-          defaultValue={eventoDetalhes.eventoDetalhes.url_pagina} onChange={(event:any) => {}}
-          id={`url_pagina`}
-          InputLabelProps={{ shrink: true }}
-          inputProps={{ maxLength: 100 }}
+          id={`evento_titulo`} label="Título Evento" autoComplete={'false'} size={'small'} className={classes.divValor}
+          defaultValue={eventoDetalhes.eventoDetalhes.evento_titulo} onChange={(event:any) => {}}
+          InputLabelProps={{ shrink: true }} inputProps={{ maxLength: 100 }} style={{ width: '45vw'}}
+          inputRef={eventoTituloRef}
         />
- 
         <TextField 
-          label="Organizador" autoComplete={'false'} size={'small'} className={classes.divValor}
-          defaultValue={eventoDetalhes.eventoDetalhes.organizador?.nome_fantasia} onChange={(event:any) => {}}
-          id={`organizador`}
-          InputLabelProps={{ shrink: true }}
-          inputProps={{ maxLength: 100 }}
-          disabled={true}
-        />
-      </div>
-      <div className={classes.divPrincipal}>
-        <TextField 
-          label="Realização" autoComplete={'false'} size={'small'} className={classes.divValor}
-          defaultValue={eventoDetalhes.eventoDetalhes.evento_data_realizacao} onChange={(event:any) => {}}
-          id={`data_evento`}
-          InputLabelProps={{ shrink: true }}
-          inputProps={{ maxLength: 100 }}
-        />
-      </div>
-      <div className={classes.divPrincipal}>
-        <TextField
-          id={`status`}
-          select
-          inputRef={statusRef}
-          label="Status"
-          size={'small'}
-          InputLabelProps={{ shrink: true }}
-          SelectProps={{ native: true }}
-          value={status}
-          onChange={(event:any) => setStatus(event.value)} 
+          select id={`uf`} label="UF" size={'small'} InputLabelProps={{ shrink: true }}
+          SelectProps={{ native: true }} onChange={(event:any) => setUF(event.value) }  value={uf}
+          inputRef={ufRef}
         >
-          <option value={'Aberto'}> Aberto </option>
+          <option value={'-'} > -  </option>
+          <option value={'PR'}> PR </option>
+          <option value={'SC'}> SC </option>
+          <option value={'RS'}> RS </option>
+          <option value={'SP'}> SP </option>
+          <option value={'RJ'}> RJ </option>
+        </TextField>
+        <TextField 
+          id={`cidade`} label="Cidade" autoComplete={'false'} size={'small'} className={classes.divValor}
+          defaultValue={eventoDetalhes.eventoDetalhes.cidade} onChange={(event:any) => setCidade(event.value)}
+          InputLabelProps={{ shrink: true }} inputProps={{ maxLength: 100 }}
+          inputRef={cidadeRef}
+        />
+      </div>
+      <div style={{display : 'flex', flexDirection: 'row',  justifyContent: 'space-between', width: '99%', margin: '5px'  }} >
+        <TextField 
+            id={`url_pagina`} label="Link Inscrição" autoComplete={'false'} size={'small'} className={classes.divValor}
+            defaultValue={eventoDetalhes.eventoDetalhes.url_pagina} onChange={(event:any) => {}}
+            InputLabelProps={{ shrink: true }} inputProps={{ maxLength: 200 }} style={{ width: '100vw'}}
+            inputRef={urlPaginaRef}
+          />
+      </div> 
+      <div style={{display : 'flex', flexDirection: 'row',  justifyContent: 'space-between', width: '99%', margin: '5px'  }} >
+        <TextField 
+            id={`organizador`} label="Organizador" autoComplete={'false'} size={'small'} className={classes.divValor}
+            defaultValue={eventoDetalhes.eventoDetalhes.organizador?.nome_fantasia} disabled={true}
+            InputLabelProps={{ shrink: true }} style={{ width: '40vw'}}
+        />
+        <TextField 
+          id={`data_evento`} label="Realização" autoComplete={'false'} size={'small'} className={classes.divValor}
+          defaultValue={eventoDetalhes.eventoDetalhes.evento_data_realizacao} onChange={(event:any) => {}}
+          InputLabelProps={{ shrink: true }} inputProps={{ maxLength: 100 }} style={{ width: '15vw'}} 
+          inputRef={dataEventoRef}
+        />
+        <TextField
+          select id={`status`} label="Status" size={'small'}
+          InputLabelProps={{ shrink: true }} SelectProps={{ native: true }}
+          value={status} onChange={(event:any) => setStatus(event.value)} 
+          inputRef={statusRef}
+        >
+          <option value={'Aberto'}   > Aberto    </option>
           <option value={'Encerrado'}> Encerrado </option>
           <option value={'Cancelado'}> Cancelado </option>
-          <option value={'Esgotado'}>  Esgotado </option>
+          <option value={'Esgotado'} > Esgotado  </option>
         </TextField>
-      
         <Switch color="primary"  size="medium"  checked={ativo} inputRef={ativoRef} onChange={(event:any) => setAtivo(event.target.checked)} />
+      </div>
+      <div style={{display : 'flex', flexDirection: 'row',  justifyContent: 'space-between', width: '99%', margin: '5px'  }} >
+        
       </div>
     </div>
   );
