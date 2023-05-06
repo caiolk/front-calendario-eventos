@@ -16,12 +16,14 @@ interface IDetalhesParam{
 }
 const EventoDetalhes = (eventoDetalhes: IDetalhesParam) => {
   const classes = useStyles();
+  const session = useSelector( (state:ISessaoParametros) => state.session );
   const [eventoTitulo,setEventoTitulo] = useState("");
   const [uf,setUF] = useState("");
   const [status,setStatus] = useState("");
   const [cidade,setCidade] = useState("");
   const [ativo,setAtivo] =  useState(false);
   const [dataEvento,setDataEvento] = useState("");
+  const [urlPagina,setUrlPagina] = useState("");
   const eventoTituloRef = useRef<HTMLInputElement>(null);
   const cidadeRef = useRef<HTMLInputElement>(null);
   const ufRef = useRef<HTMLInputElement>(null);
@@ -40,12 +42,39 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam) => {
     }
   },[eventoDetalhes]);
 
+  async function salvarEvento(uuidEvento:string){
+
+    let evento = mountData();
+    return await api.put(`/eventos/${uuidEvento}`, {...evento},
+        { headers: {
+            'Authorization': `Bearer ${session.access_token.access_token}`
+        } }).then( (result:any) => {
+            console.log(result);
+        }).catch( (error:any) => {
+            
+        })
+  }
+
+  function mountData(){
+    return {
+      "uuid": eventoDetalhes.eventoDetalhes.uuid,
+      "evento_titulo": eventoTituloRef.current?.value,
+      "organizador_uuid": eventoDetalhes.eventoDetalhes.organizador_uuid,
+      "uf" : ufRef.current?.value,
+      "cidade" : cidadeRef.current?.value,
+      "url_pagina": urlPaginaRef.current?.value,
+      "evento_data_realizacao": dataEventoRef.current?.value,
+      "status_string": statusRef.current?.value,
+      "ativo": ativoRef.current?.checked === true ? 1 : 0 ,
+    };
+  }
+
   return (
     <div style={{width : '100%'}}>
       <div style={{display : 'flex', flexDirection: 'row',  justifyContent: 'space-between', width: '99%', margin: '5px'  }} >
         <TextField 
           id={`evento_titulo`} label="Título Evento" autoComplete={'false'} size={'small'} className={classes.divValor}
-          defaultValue={eventoDetalhes.eventoDetalhes.evento_titulo} onChange={(event:any) => {}}
+          defaultValue={eventoDetalhes.eventoDetalhes.evento_titulo} onChange={(event:any) => setEventoTitulo(event.value) }
           InputLabelProps={{ shrink: true }} inputProps={{ maxLength: 100 }} style={{ width: '45vw'}}
           inputRef={eventoTituloRef}
         />
@@ -99,10 +128,16 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam) => {
           <option value={'Cancelado'}> Cancelado </option>
           <option value={'Esgotado'} > Esgotado  </option>
         </TextField>
-        <Switch color="primary"  size="medium"  checked={ativo} inputRef={ativoRef} onChange={(event:any) => setAtivo(event.target.checked)} />
+        <Switch color="primary"  size="medium"  checked={ativo} onChange={(event:any) => setAtivo(event.target.checked)} inputRef={ativoRef} />
       </div>
-      <div style={{display : 'flex', flexDirection: 'row',  justifyContent: 'space-between', width: '99%', margin: '5px'  }} >
-        
+      <div style={{display : 'flex', flexDirection: 'row',  justifyContent: 'flex-end', width: '99%', margin: '5px'  }} >
+        <Button 
+          className={classes.buttonBuscar}
+          style={{ background: '#04ccb9', color:'#fff' }}
+          variant="contained" size="small" onClick={() => salvarEvento(String(eventoDetalhes.eventoDetalhes.uuid))} 
+        >
+          Salvar
+        </Button>
       </div>
     </div>
   );
