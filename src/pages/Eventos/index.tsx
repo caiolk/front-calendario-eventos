@@ -1,6 +1,7 @@
 import { TextField, Paper, Select , Button, Snackbar, Alert, Backdrop, CircularProgress, AlertTitle } from '@mui/material';
 import React, { useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import ISessaoParametros from '../../shared/interfaces/ISessaoParametros'
 import TabelaResultado from '../../Components/TabelaResultado';
 import api from '../../services/api';
 import useStyles from './styles';
@@ -9,23 +10,6 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { DatePicker } from '@mui/x-date-pickers'
 import ptBR from 'dayjs/locale/pt-br';
 import moment from "moment";
-
-interface ISessaoParametros{
-    session:{
-      user:{
-        id:number,
-        nome:string,
-        email:string,
-        blAdmin:number
-      },
-      access_token:{
-        access_token: string,
-        expires_in: string,
-        token_type: string
-      }
-    }
-    
-  }
 
 const Eventos = () => {
     const classes = useStyles();
