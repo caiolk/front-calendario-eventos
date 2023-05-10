@@ -221,13 +221,13 @@ export default function EnhancedTable(props) {
                                       onClick={() => {openModalRef(row.uuid)} } >
                                       <EditIcon  style={{fontSize : '16px'}}/>
                                   </Button>
-                                  <Button 
+                                  {/* <Button 
                                       style={{ width: '12px', background: 'rgb(205 17 17)' }}
                                       variant="contained" 
                                       size="small"
                                       onClick={() => {}} >
                                       <DeleteIcon style={{fontSize : '16px'}}/>
-                                  </Button>  
+                                  </Button>   */}
                                 </div>
                               </TableCell> 
                             </TableRow>

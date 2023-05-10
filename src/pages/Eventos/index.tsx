@@ -46,7 +46,7 @@ const Eventos = () => {
     const dataFimRef = useRef<HTMLInputElement>(null);
     const [buscaParametros,setBuscaParametros] = useState("");
     const [loading, setLoading] = useState(true);
-    const [msgErro,setMsgErro] = useState(true);
+    const [msgErro,setMsgErro] = useState(false);
     const [alertData, setAlertData] = useState({strMensagem:'teste\nteste\nteste\nteste\nteste\nteste\n',strType:'error'});
     
     async function buscaEventos(buscaParametros:string){
