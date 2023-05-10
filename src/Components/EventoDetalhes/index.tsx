@@ -71,7 +71,7 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam) => {
 
   return (
     <div style={{width : '100%'}}>
-      <div style={{display : 'flex', flexDirection: 'row',  justifyContent: 'space-between', width: '99%', margin: '5px'  }} >
+      <div className={classes.divRow} >
         <TextField 
           id={`evento_titulo`} label="Título Evento" autoComplete={'false'} size={'small'} className={classes.divValor}
           defaultValue={eventoDetalhes.eventoDetalhes.evento_titulo} onChange={(event:any) => setEventoTitulo(event.value) }
@@ -97,7 +97,7 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam) => {
           inputRef={cidadeRef}
         />
       </div>
-      <div style={{display : 'flex', flexDirection: 'row',  justifyContent: 'space-between', width: '99%', margin: '5px'  }} >
+      <div className={classes.divRow} >
         <TextField 
             id={`url_pagina`} label="Link Inscrição" autoComplete={'false'} size={'small'} className={classes.divValor}
             defaultValue={eventoDetalhes.eventoDetalhes.url_pagina} onChange={(event:any) => {}}
@@ -105,7 +105,7 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam) => {
             inputRef={urlPaginaRef}
           />
       </div> 
-      <div style={{display : 'flex', flexDirection: 'row',  justifyContent: 'space-between', width: '99%', margin: '5px'  }} >
+      <div className={classes.divRow} >
         <TextField 
             id={`organizador`} label="Organizador" autoComplete={'false'} size={'small'} className={classes.divValor}
             defaultValue={eventoDetalhes.eventoDetalhes.organizador?.nome_fantasia} disabled={true}
@@ -130,7 +130,7 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam) => {
         </TextField>
         <Switch color="primary"  size="medium"  checked={ativo} onChange={(event:any) => setAtivo(event.target.checked)} inputRef={ativoRef} />
       </div>
-      <div style={{display : 'flex', flexDirection: 'row',  justifyContent: 'flex-end', width: '99%', margin: '5px'  }} >
+      <div className={classes.divRowEnd} >
         <Button 
           className={classes.buttonBuscar}
           style={{ background: '#04ccb9', color:'#fff' }}

@@ -9,6 +9,20 @@ const useStyles = makeStyles(() => ({
     alignItems:'center',
     justifyContent: 'center'
   },
+  divRow:{
+    display : 'flex', 
+    flexDirection: 'row',  
+    justifyContent: 'space-between', 
+    width: '98%', 
+    margin: '10px'  
+  },
+  divRowEnd:{
+    display : 'flex', 
+    flexDirection: 'row',  
+    justifyContent: 'flex-end', 
+    width: '98%', 
+    margin: '10px'  
+  },
   paper:{
     display:'flex', 
     flexDirection: 'row', 
@@ -52,42 +66,42 @@ const useStyles = makeStyles(() => ({
   resize: {
     fontSize: 10
 	},
-    btnSalvar:{
-      width:'50px',
-      height:'35px',
+  btnSalvar:{
+    width:'50px',
+    height:'35px',
 
-    },
-    btnSalvarAtivo:{
-        width:'10px',
-        height:'35px',
-        background: '#04ccb9',
-        color:'#fff',
-        '&:hover': {
-          backgroundColor: '#07ebd5',
-          color: '#fff'
-        },
-        fontSize: '8px'
-    },
-    stparc: {
-      fontSize: '10px'
-    },
-    listaParcelas: { 
-      display:'flex', 
-      alignItems:'flex-end',
-      justifyContent:'space-around'
-    },
-    info:{
-      display:'flex', 
-      flexDirection: 'row', 
-      marginBottom: 10, 
-      justifyContent: 'space-around',
-      backgroundColor: 'rgb(28, 67, 99)',
-      borderRadius:'5px',
-      width: '96%',
-      padding: 5,
-      color: '#fff',
-      fontWeight: 'bold'
-    }
+  },
+  btnSalvarAtivo:{
+      width:'10px',
+      height:'35px',
+      background: '#04ccb9',
+      color:'#fff',
+      '&:hover': {
+        backgroundColor: '#07ebd5',
+        color: '#fff'
+      },
+      fontSize: '8px'
+  },
+  stparc: {
+    fontSize: '10px'
+  },
+  listaParcelas: { 
+    display:'flex', 
+    alignItems:'flex-end',
+    justifyContent:'space-around'
+  },
+  info:{
+    display:'flex', 
+    flexDirection: 'row', 
+    marginBottom: 10, 
+    justifyContent: 'space-around',
+    backgroundColor: 'rgb(28, 67, 99)',
+    borderRadius:'5px',
+    width: '96%',
+    padding: 5,
+    color: '#fff',
+    fontWeight: 'bold'
+  }
     
 }));
 
