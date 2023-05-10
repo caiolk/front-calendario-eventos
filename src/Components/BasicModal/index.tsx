@@ -1,12 +1,13 @@
 import React, { useEffect, useState,  useCallback, forwardRef, useImperativeHandle } from 'react';
 import { useSelector } from 'react-redux';
-import { TextField, Box, Paper, Select , Button, Snackbar, Alert, Backdrop, CircularProgress } from '@mui/material';
+import { TextField, Box, Paper, Select , Button, Snackbar, Alert, Backdrop, CircularProgress, IconButton } from '@mui/material';
 import Modal from '@mui/material/Modal';
 import api from '../../services/api';
 import ISessaoParametros from '../../shared/interfaces/ISessaoParametros'
 import IEventoDetalhesParam from '../../shared/interfaces/IEventoDetalhesParam'
 import useStyles from './styles';
 import EventoDetalhes from '../EventoDetalhes';
+import Close from '@mui/icons-material/Close';
 
 const style = {
   marginTop:'50vh',
@@ -81,7 +82,7 @@ const BasicModal: React.ForwardRefRenderFunction<IModalHandles> = (props, ref) =
     <div>
       <Modal
         open={open}
-        onClose={handleClose}
+        
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
@@ -91,6 +92,9 @@ const BasicModal: React.ForwardRefRenderFunction<IModalHandles> = (props, ref) =
                 open={loading}>
                 <CircularProgress color="inherit" />
             </Backdrop>
+            <Button   variant="text" size="small" onClick={handleClose}  style={{ background: 'rgb(211 34 34)', color:'#fff', fontSize: 10, borderRadius: 2, position: "absolute", top: "-0", right: "-0"}}>
+              Fechar X
+            </Button>
             <div className={classes.info} style={{ flexDirection: 'column',  justifyContent:'center', alignItems:'center', overflow: 'auto', width: '100%' }} >
                 <div>Detalhes da corrida</div>
             </div>

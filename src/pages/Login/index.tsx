@@ -93,7 +93,7 @@ const Login = (props:LoginParams) => {
                                 inputRef={loginRef}
                                 label="Login" 
                                 type="text"
-                                value={"pbayer@example.org"}
+                                value={"caio.kozano@live.com"}
                                 error={loginErro}
                                 helperText={ (loginErro ? "Campo obrigatório." : "") }
                                 autoComplete="off"

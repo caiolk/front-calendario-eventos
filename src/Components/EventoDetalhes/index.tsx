@@ -24,6 +24,7 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam) => {
   const [ativo,setAtivo] =  useState(false);
   const [dataEvento,setDataEvento] = useState("");
   const [urlPagina,setUrlPagina] = useState("");
+  const [disabled,setDisabled] = useState(false);
   const eventoTituloRef = useRef<HTMLInputElement>(null);
   const cidadeRef = useRef<HTMLInputElement>(null);
   const ufRef = useRef<HTMLInputElement>(null);
@@ -43,15 +44,16 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam) => {
   },[eventoDetalhes]);
 
   async function salvarEvento(uuidEvento:string){
-
+    setDisabled(true);
     let evento = mountData();
     return await api.put(`/eventos/${uuidEvento}`, {...evento},
         { headers: {
             'Authorization': `Bearer ${session.access_token.access_token}`
         } }).then( (result:any) => {
             console.log(result);
+            setDisabled(false);
         }).catch( (error:any) => {
-            
+          setDisabled(false);
         })
   }
 
@@ -71,17 +73,19 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam) => {
 
   return (
     <div style={{width : '100%'}}>
-      <div style={{display : 'flex', flexDirection: 'row',  justifyContent: 'space-between', width: '99%', margin: '5px'  }} >
+      <div className={classes.divRow} >
         <TextField 
           id={`evento_titulo`} label="Título Evento" autoComplete={'false'} size={'small'} className={classes.divValor}
           defaultValue={eventoDetalhes.eventoDetalhes.evento_titulo} onChange={(event:any) => setEventoTitulo(event.value) }
           InputLabelProps={{ shrink: true }} inputProps={{ maxLength: 100 }} style={{ width: '45vw'}}
           inputRef={eventoTituloRef}
+          disabled={disabled}
         />
         <TextField 
           select id={`uf`} label="UF" size={'small'} InputLabelProps={{ shrink: true }}
           SelectProps={{ native: true }} onChange={(event:any) => setUF(event.value) }  value={uf}
           inputRef={ufRef}
+          disabled={disabled}
         >
           <option value={'-'} > -  </option>
           <option value={'PR'}> PR </option>
@@ -94,18 +98,18 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam) => {
           id={`cidade`} label="Cidade" autoComplete={'false'} size={'small'} className={classes.divValor}
           defaultValue={eventoDetalhes.eventoDetalhes.cidade} onChange={(event:any) => setCidade(event.value)}
           InputLabelProps={{ shrink: true }} inputProps={{ maxLength: 100 }}
-          inputRef={cidadeRef}
+          inputRef={cidadeRef} disabled={disabled}
         />
       </div>
-      <div style={{display : 'flex', flexDirection: 'row',  justifyContent: 'space-between', width: '99%', margin: '5px'  }} >
+      <div className={classes.divRow} >
         <TextField 
             id={`url_pagina`} label="Link Inscrição" autoComplete={'false'} size={'small'} className={classes.divValor}
             defaultValue={eventoDetalhes.eventoDetalhes.url_pagina} onChange={(event:any) => {}}
             InputLabelProps={{ shrink: true }} inputProps={{ maxLength: 200 }} style={{ width: '100vw'}}
-            inputRef={urlPaginaRef}
+            inputRef={urlPaginaRef} disabled={disabled}
           />
       </div> 
-      <div style={{display : 'flex', flexDirection: 'row',  justifyContent: 'space-between', width: '99%', margin: '5px'  }} >
+      <div className={classes.divRow} >
         <TextField 
             id={`organizador`} label="Organizador" autoComplete={'false'} size={'small'} className={classes.divValor}
             defaultValue={eventoDetalhes.eventoDetalhes.organizador?.nome_fantasia} disabled={true}
@@ -115,29 +119,35 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam) => {
           id={`data_evento`} label="Realização" autoComplete={'false'} size={'small'} className={classes.divValor}
           defaultValue={eventoDetalhes.eventoDetalhes.evento_data_realizacao} onChange={(event:any) => {}}
           InputLabelProps={{ shrink: true }} inputProps={{ maxLength: 100 }} style={{ width: '15vw'}} 
-          inputRef={dataEventoRef}
+          inputRef={dataEventoRef} disabled={disabled}
         />
         <TextField
           select id={`status`} label="Status" size={'small'}
           InputLabelProps={{ shrink: true }} SelectProps={{ native: true }}
           value={status} onChange={(event:any) => setStatus(event.value)} 
-          inputRef={statusRef}
+          inputRef={statusRef} disabled={disabled}
         >
           <option value={'Aberto'}   > Aberto    </option>
           <option value={'Encerrado'}> Encerrado </option>
           <option value={'Cancelado'}> Cancelado </option>
           <option value={'Esgotado'} > Esgotado  </option>
         </TextField>
-        <Switch color="primary"  size="medium"  checked={ativo} onChange={(event:any) => setAtivo(event.target.checked)} inputRef={ativoRef} />
+        <Switch color="primary"  size="medium"  checked={ativo} disabled={disabled} onChange={(event:any) => setAtivo(event.target.checked)} inputRef={ativoRef} />
       </div>
-      <div style={{display : 'flex', flexDirection: 'row',  justifyContent: 'flex-end', width: '99%', margin: '5px'  }} >
+      <div className={classes.divRowEnd} >
+        <div style={{marginRight: '10px'}}>
+          {disabled ? (<><CircularProgress size={30} /></>) : (<></>)}
+        </div>
+        <div>
         <Button 
           className={classes.buttonBuscar}
-          style={{ background: '#04ccb9', color:'#fff' }}
+          style={{ background: (disabled ? '#c1c1c1' : '#04ccb9' ), color:'#fff' }}
           variant="contained" size="small" onClick={() => salvarEvento(String(eventoDetalhes.eventoDetalhes.uuid))} 
+          disabled={disabled}
         >
-          Salvar
+           Salvar
         </Button>
+        </div>
       </div>
     </div>
   );
