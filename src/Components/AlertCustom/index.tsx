@@ -15,9 +15,7 @@ const AlertCustom = () => {
                         <AlertTitle><strong>Erro</strong></AlertTitle>
                         { alertData.strMensagem!== "" ? 
                             alertData.strMensagem.split("\n").map( (mensagens:any) => {
-                                return (mensagens !== "" ? 
-                                (<><div>-{mensagens}.</div></>)
-                                : '' )
+                                return (mensagens !== "" ?  (<><div>-{mensagens}.</div></>) : '' )
                                 
                             } )
                             : ''

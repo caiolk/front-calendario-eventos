@@ -3,6 +3,7 @@ import clsx from 'clsx';
 import { Router, Route, Link, Routes, BrowserRouter, Navigate, NavLink } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { createBrowserHistory } from "history";
+import ISessaoParametros from './shared/interfaces/ISessaoParametros';
 
 import { withStyles } from '@material-ui/styles';
 import { AppBar, Toolbar, Typography, Drawer, List, ListItem, ListItemText, IconButton, Tooltip, Switch,Button, Paper, MenuItem } from '@mui/material';
@@ -12,29 +13,11 @@ import Icon from '@mdi/react';
 import { mdiLogout } from '@mdi/js';
 import { IsAuthenticated } from './auth'
 
-
 import { setSession } from './store/actions/Session.action';
 
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Eventos from './pages/Eventos';
-
-interface ISessaoParametros{
-  session:{
-    user:{
-      id:number,
-      nome:string,
-      email:string,
-      blAdmin:number
-    },
-    access_token:{
-      access_token: string,
-      expires_in: string,
-      token_type: string
-    }
-  }
-  
-}
 
 const { REACT_APP_HOST } = process.env;
 
