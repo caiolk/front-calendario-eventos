@@ -1,4 +1,4 @@
-const INITIAL_STATE = {  strMensagem:'', openAlert: false, strType:'' };
+const INITIAL_STATE = {  mensagens: [], open: false, title: '', type:'' };
 
 export default function alertCustom (state:any = INITIAL_STATE, action: any){
 

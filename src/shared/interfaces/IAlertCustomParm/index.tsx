@@ -1,7 +1,8 @@
 export default interface IAlertCustomParam{
     alertCustom:{
-        strMensagem:string,
-        openAlert: boolean, 
-        strType:string
+        mensagens: [],
+        open: boolean, 
+        type: string,
+        title: string
     }
 }

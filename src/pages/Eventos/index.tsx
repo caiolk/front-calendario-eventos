@@ -34,10 +34,9 @@ const Eventos = () => {
     const dataFimRef = useRef<HTMLInputElement>(null);
     const [buscaParametros,setBuscaParametros] = useState("");
     const [loading, setLoading] = useState(true);
-    const [msgErro,setMsgErro] = useState(false);
-    const alertCustom = useSelector( (state:IAlertCustomParm) => state.alertCustom );
     
     async function buscaEventos(buscaParametros:string){
+        dispatch(setAlertCustom({ mensagens: [], title: '', open: false, type: 'info'}));
         return await api.get( `/eventos?${buscaParametros}`,
             { headers: {
                 'Authorization': `Bearer ${session.access_token.access_token}`
@@ -46,11 +45,13 @@ const Eventos = () => {
                     if(result.data.status !== false){
                         setDadosEventos(result.data.data.data);
                         setLoading(false)
+                        dispatch(setAlertCustom({ mensagens: ['Dados encontrados com sucesso'], title: 'Sucesso', open: true, type: 'success'}));
                     }
                 }
             }).catch( (error:any) => {
                 setDadosEventos([]);
                 setLoading(false);
+                dispatch(setAlertCustom({ mensagens: ['Erro ao buscar dados'], title: 'Erro', open: true, type: 'error'}));
             })
     }
 
@@ -99,11 +100,6 @@ const Eventos = () => {
             buscaEventos(buscaParametros);
         } 
     },[session,buscaParametros])
-    useEffect(() => {
-      
-        dispatch(setAlertCustom({ strMensagem: 'Renato toma café tinta de pneu', openAlert: true, type: 'error'}));
-      
-    },[dispatch])
 
     return (<>
                 <Backdrop
