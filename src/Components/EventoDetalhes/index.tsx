@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { useSelector } from 'react-redux';
-import { TextField, Box, Paper, Select , Button, Snackbar, Alert, Backdrop, CircularProgress, Switch } from '@mui/material';
+import { useEffect, useState, useRef } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { TextField, Button, CircularProgress, Switch } from '@mui/material';
 import api from '../../services/api';
 import ISessaoParametros from '../../shared/interfaces/ISessaoParametros'
 import IEventoDetalhesParam from '../../shared/interfaces/IEventoDetalhesParam'
@@ -10,6 +10,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { DatePicker } from '@mui/x-date-pickers'
 import ptBR from 'dayjs/locale/pt-br';
 import moment from "moment";
+import { setAlertCustom } from '../../store/actions/AlertCustom.action';
 
 interface IDetalhesParam{
   eventoDetalhes: IEventoDetalhesParam
@@ -17,6 +18,7 @@ interface IDetalhesParam{
 const EventoDetalhes = (eventoDetalhes: IDetalhesParam) => {
   const classes = useStyles();
   const session = useSelector( (state:ISessaoParametros) => state.session );
+  const dispatch = useDispatch();
   const [eventoTitulo,setEventoTitulo] = useState("");
   const [uf,setUF] = useState("");
   const [status,setStatus] = useState("");
@@ -32,7 +34,7 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam) => {
   const statusRef = useRef<HTMLInputElement>(null);
   const dataEventoRef = useRef<HTMLInputElement>(null);
   const ativoRef = useRef<HTMLInputElement>(null);
-
+  
   useEffect(() => {
     if(eventoDetalhes.eventoDetalhes){
       setUF(String(eventoDetalhes.eventoDetalhes.uf))
@@ -44,16 +46,18 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam) => {
   },[eventoDetalhes]);
 
   async function salvarEvento(uuidEvento:string){
+    dispatch(setAlertCustom({ mensagens: [], title: '', open: false, type: 'info'}));
     setDisabled(true);
     let evento = mountData();
     return await api.put(`/eventos/${uuidEvento}`, {...evento},
         { headers: {
             'Authorization': `Bearer ${session.access_token.access_token}`
-        } }).then( (result:any) => {
-            console.log(result);
+        }}).then( (result:any) => {
+            dispatch(setAlertCustom({ mensagens: ['Evento salvo com sucesso!'], title: 'Sucesso', open: true, type: 'success'}));
             setDisabled(false);
         }).catch( (error:any) => {
           setDisabled(false);
+          dispatch(setAlertCustom({ mensagens: ['Erro ao salvar!'], title: 'Erro', open: true, type: 'error'}));
         })
   }
 

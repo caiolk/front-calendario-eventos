@@ -41,13 +41,16 @@ const Eventos = () => {
             { headers: {
                 'Authorization': `Bearer ${session.access_token.access_token}`
             } }).then( (result:any) => {
-                if(result.data.data.data){
-                    if(result.data.status !== false){
-                        setDadosEventos(result.data.data.data);
-                        setLoading(false)
-                        dispatch(setAlertCustom({ mensagens: ['Dados encontrados com sucesso'], title: 'Sucesso', open: true, type: 'success'}));
-                    }
+                console.log(result)
+                if(result.data.status !== false){
+                    setDadosEventos(result.data.data.data);
+                    setLoading(false)
+                    dispatch(setAlertCustom({ mensagens: ['Dados encontrados com sucesso'], title: 'Sucesso', open: true, type: 'success'}));
+                }else{
+                    dispatch(setAlertCustom({ mensagens: [ result.data.message ], title: '', open: true, type: 'warning'}));
                 }
+                
+                setLoading(false)
             }).catch( (error:any) => {
                 setDadosEventos([]);
                 setLoading(false);
