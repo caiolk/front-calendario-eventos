@@ -1,8 +1,12 @@
 import { TextField, Paper, Select , Button, Snackbar, Alert, Backdrop, CircularProgress, AlertTitle } from '@mui/material';
 import React, { useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { setAlertCustom } from '../../store/actions/AlertCustom.action';
 import ISessaoParametros from '../../shared/interfaces/ISessaoParametros'
+import IAlertCustomParm from '../../shared/interfaces/IAlertCustomParm'
+
 import TabelaResultado from '../../Components/TabelaResultado';
+import AlertCustom from '../../Components/AlertCustom';
 import api from '../../services/api';
 import useStyles from './styles';
 import { LocalizationProvider } from '@mui/x-date-pickers';
@@ -14,7 +18,7 @@ import moment from "moment";
 const Eventos = () => {
     const classes = useStyles();
     const session = useSelector( (state:ISessaoParametros) => state.session );
-    
+    const dispatch = useDispatch();
     const [dadosEventos, setDadosEventos] = useState([]);
     const [evento,setEvento] = useState("");
     const [uf,setUF] = useState("");
@@ -31,7 +35,7 @@ const Eventos = () => {
     const [buscaParametros,setBuscaParametros] = useState("");
     const [loading, setLoading] = useState(true);
     const [msgErro,setMsgErro] = useState(false);
-    const [alertData, setAlertData] = useState({strMensagem:'teste\nteste\nteste\nteste\nteste\nteste\n',strType:'error'});
+    const alertCustom = useSelector( (state:IAlertCustomParm) => state.alertCustom );
     
     async function buscaEventos(buscaParametros:string){
         return await api.get( `/eventos?${buscaParametros}`,
@@ -95,7 +99,12 @@ const Eventos = () => {
             buscaEventos(buscaParametros);
         } 
     },[session,buscaParametros])
- 
+    useEffect(() => {
+      
+        dispatch(setAlertCustom({ strMensagem: 'Renato toma café tinta de pneu', openAlert: true, type: 'error'}));
+      
+    },[dispatch])
+
     return (<>
                 <Backdrop
                     sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
@@ -222,7 +231,8 @@ const Eventos = () => {
                 </Paper>
             </div>
             <div>
-                <Snackbar open={msgErro} autoHideDuration={10000}  onClose={() => { setMsgErro(false) } } >
+                <AlertCustom/>
+                {/* <Snackbar open={msgErro} autoHideDuration={10000}  onClose={() => { setMsgErro(false) } } >
                     <div>
                     <Alert onClose={() => setMsgErro(false)} severity="error" sx={{ width: '100%' }}>
                         <AlertTitle><strong>Erro</strong></AlertTitle>
@@ -237,7 +247,7 @@ const Eventos = () => {
                         }
                         </Alert>
                     </div>
-                </Snackbar>
+                </Snackbar> */}
             </div>
         </>)
 }
