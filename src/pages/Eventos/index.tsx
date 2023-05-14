@@ -41,7 +41,6 @@ const Eventos = () => {
             { headers: {
                 'Authorization': `Bearer ${session.access_token.access_token}`
             } }).then( (result:any) => {
-                console.log(result)
                 if(result.data.status !== false){
                     setDadosEventos(result.data.data.data);
                     setLoading(false)
@@ -64,7 +63,7 @@ const Eventos = () => {
         if(eventoRef.current?.value !== undefined){
             params.push(`evento_titulo=${eventoRef.current?.value}`);
         }
-        console.log(ufRef.current?.value)
+        
         if(ufRef.current?.value !== undefined){
             params.push(`uf=${ufRef.current?.value}`);
         }
@@ -105,6 +104,7 @@ const Eventos = () => {
     },[session,buscaParametros])
 
     return (<>
+                <AlertCustom/>
                 <Backdrop
                     sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
                     open={loading}>
@@ -228,25 +228,6 @@ const Eventos = () => {
                         } 
                     </div>
                 </Paper>
-            </div>
-            <div>
-                <AlertCustom/>
-                {/* <Snackbar open={msgErro} autoHideDuration={10000}  onClose={() => { setMsgErro(false) } } >
-                    <div>
-                    <Alert onClose={() => setMsgErro(false)} severity="error" sx={{ width: '100%' }}>
-                        <AlertTitle><strong>Erro</strong></AlertTitle>
-                        { alertData.strMensagem!== "" ? 
-                            alertData.strMensagem.split("\n").map( (mensagens:any) => {
-                                return (mensagens !== "" ? 
-                                (<><div>-{mensagens}.</div></>)
-                                : '' )
-                                
-                            } )
-                            : ''
-                        }
-                        </Alert>
-                    </div>
-                </Snackbar> */}
             </div>
         </>)
 }
