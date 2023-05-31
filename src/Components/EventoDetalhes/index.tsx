@@ -1,6 +1,7 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { TextField, Button, CircularProgress, Switch } from '@mui/material';
+import { TextField, Button, CircularProgress, Switch, Autocomplete } from '@mui/material';
+import { debounce } from "lodash"
 import api from '../../services/api';
 import ISessaoParametros from '../../shared/interfaces/ISessaoParametros'
 import IEventoDetalhesParam from '../../shared/interfaces/IEventoDetalhesParam'
@@ -29,7 +30,12 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam) => {
   const statusRef = useRef<HTMLInputElement>(null);
   const dataEventoRef = useRef<HTMLInputElement>(null);
   const ativoRef = useRef<HTMLInputElement>(null);
-  
+  const organizadorRef = useRef<HTMLInputElement>(null);
+  const [open, setOpen] = useState(false);
+  const [loadingInput, setLoadingInput] = useState(false);
+  const [dados, setDados] = useState([]);
+  const [busca, setBusca] = useState(null);
+
   useEffect(() => {
     if(eventoDetalhes.eventoDetalhes){
       setUF(String(eventoDetalhes.eventoDetalhes.uf))
@@ -55,7 +61,34 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam) => {
           dispatch(setAlertCustom({ mensagens: ['Erro ao salvar!'], title: 'Erro', open: true, type: 'error'}));
         })
   }
-
+  useEffect(() => {
+      const delayDebounceFn = setTimeout(() => {
+        buscaOrganizadores();
+      }, 500)
+  
+      return () => { clearTimeout(delayDebounceFn); setBusca(null); setLoadingInput(false); }
+  }, [busca])
+  const buscaOrganizadores = useCallback( async () => {
+    
+    let organizador = organizadorRef.current?.value;
+    if(organizador!==""){
+      setLoadingInput(true);
+      return await api.get( `/organizador?nome_fantasia=${organizadorRef.current?.value}`,
+        { headers: {
+            'Authorization': `Bearer ${session.access_token.access_token}`
+        } }).then( (result:any) => {
+            if(result.data.status !== false){
+              setDados(result.data.data);
+            }
+            setLoadingInput(false);
+        }).catch( (error:any) => {
+            setDados([]);
+            setLoadingInput(false);
+        })
+       
+    }
+  },[])
+console.log(dados);
   function mountData(){
     return {
       "uuid": eventoDetalhes.eventoDetalhes.uuid,
@@ -69,7 +102,7 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam) => {
       "ativo": ativoRef.current?.checked === true ? 1 : 0 ,
     };
   }
-
+console.log(dados);
   return (
     <div style={{width : '100%'}}>
     <div className={classes.divRow} >
@@ -133,6 +166,44 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam) => {
       </TextField>
       <Switch color="primary"  size="medium"  checked={ativo} disabled={disabled} onChange={(event:any) => setAtivo(event.target.checked)} inputRef={ativoRef} />
     </div>
+    <div className={classes.divRow} >
+      <Autocomplete
+        id="organizador-autocomplete"
+        size={'small'}
+        sx={{ width: 510 }}
+        open={open}
+        onOpen={() => {
+          setOpen(true);
+        }}
+        onClose={() => {
+          setOpen(false);
+        }}
+        
+        isOptionEqualToValue={(option:any, value:any) => option.nome_fantasia === value.nome_fantasia}
+        getOptionLabel={(option:any) => option.nome_fantasia}
+        options={dados}
+        loading={loadingInput}
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            label="Organizador"
+            inputRef={organizadorRef}
+            onChange={(event:any) => { setBusca(event.value) }}
+            InputProps={{
+              ...params.InputProps,
+              endAdornment: (
+                <>
+                  {loadingInput ? <CircularProgress color="inherit" size={20} /> : null}
+                  {params.InputProps.endAdornment}
+                </>
+              ),
+            }}
+        />
+      )}
+    />
+
+    </div>
+
     <div className={classes.divRowEnd} >
       <div style={{marginRight: '10px'}}>
         {disabled ? (<><CircularProgress size={30} /></>) : (<></>)}
