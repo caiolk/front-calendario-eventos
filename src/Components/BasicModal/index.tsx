@@ -67,7 +67,6 @@ const BasicModal: React.ForwardRefRenderFunction<IModalHandles> = (props, ref) =
         { headers: {
             'Authorization': `Bearer ${session.access_token.access_token}`
         } }).then( (result:any) => {
-          console.log(result.data.data,result.data.status)
             if(result.data.data && result.data.status !== false){
                 setDadosEventos(result.data.data);     
             }  

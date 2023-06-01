@@ -1,6 +1,6 @@
-const INITIAL_STATE = false
+const INITIAL_STATE = {  mensagens: [], open: false, title: '', type:'' };
 
-export default function loading (state : any = INITIAL_STATE, action: any){
+export default function alertCustom (state:any = INITIAL_STATE, action: any){
 
     switch (action.type) {
         case 'SET_ALERT_CUSTOM':

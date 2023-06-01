@@ -1,8 +1,12 @@
 import { TextField, Paper, Select , Button, Snackbar, Alert, Backdrop, CircularProgress, AlertTitle } from '@mui/material';
 import React, { useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { setAlertCustom } from '../../store/actions/AlertCustom.action';
 import ISessaoParametros from '../../shared/interfaces/ISessaoParametros'
+import IAlertCustomParm from '../../shared/interfaces/IAlertCustomParm'
+
 import TabelaResultado from '../../Components/TabelaResultado';
+import AlertCustom from '../../Components/AlertCustom';
 import api from '../../services/api';
 import useStyles from './styles';
 import { LocalizationProvider } from '@mui/x-date-pickers';
@@ -14,7 +18,7 @@ import moment from "moment";
 const Eventos = () => {
     const classes = useStyles();
     const session = useSelector( (state:ISessaoParametros) => state.session );
-    
+    const dispatch = useDispatch();
     const [dadosEventos, setDadosEventos] = useState([]);
     const [evento,setEvento] = useState("");
     const [uf,setUF] = useState("");
@@ -30,23 +34,26 @@ const Eventos = () => {
     const dataFimRef = useRef<HTMLInputElement>(null);
     const [buscaParametros,setBuscaParametros] = useState("");
     const [loading, setLoading] = useState(true);
-    const [msgErro,setMsgErro] = useState(false);
-    const [alertData, setAlertData] = useState({strMensagem:'teste\nteste\nteste\nteste\nteste\nteste\n',strType:'error'});
     
     async function buscaEventos(buscaParametros:string){
+        dispatch(setAlertCustom({ mensagens: [], title: '', open: false, type: 'info'}));
         return await api.get( `/eventos?${buscaParametros}`,
             { headers: {
                 'Authorization': `Bearer ${session.access_token.access_token}`
             } }).then( (result:any) => {
-                if(result.data.data.data){
-                    if(result.data.status !== false){
-                        setDadosEventos(result.data.data.data);
-                        setLoading(false)
-                    }
+                if(result.data.status !== false){
+                    setDadosEventos(result.data.data.data);
+                    setLoading(false)
+                    dispatch(setAlertCustom({ mensagens: ['Dados encontrados com sucesso'], title: 'Sucesso', open: true, type: 'success'}));
+                }else{
+                    dispatch(setAlertCustom({ mensagens: [ result.data.message ], title: '', open: true, type: 'warning'}));
                 }
+                
+                setLoading(false)
             }).catch( (error:any) => {
                 setDadosEventos([]);
                 setLoading(false);
+                dispatch(setAlertCustom({ mensagens: ['Erro ao buscar dados'], title: 'Erro', open: true, type: 'error'}));
             })
     }
 
@@ -56,7 +63,7 @@ const Eventos = () => {
         if(eventoRef.current?.value !== undefined){
             params.push(`evento_titulo=${eventoRef.current?.value}`);
         }
-        console.log(ufRef.current?.value)
+        
         if(ufRef.current?.value !== undefined){
             params.push(`uf=${ufRef.current?.value}`);
         }
@@ -95,8 +102,9 @@ const Eventos = () => {
             buscaEventos(buscaParametros);
         } 
     },[session,buscaParametros])
- 
+
     return (<>
+                <AlertCustom/>
                 <Backdrop
                     sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
                     open={loading}>
@@ -220,24 +228,6 @@ const Eventos = () => {
                         } 
                     </div>
                 </Paper>
-            </div>
-            <div>
-                <Snackbar open={msgErro} autoHideDuration={10000}  onClose={() => { setMsgErro(false) } } >
-                    <div>
-                    <Alert onClose={() => setMsgErro(false)} severity="error" sx={{ width: '100%' }}>
-                        <AlertTitle><strong>Erro</strong></AlertTitle>
-                        { alertData.strMensagem!== "" ? 
-                            alertData.strMensagem.split("\n").map( (mensagens:any) => {
-                                return (mensagens !== "" ? 
-                                (<><div>-{mensagens}.</div></>)
-                                : '' )
-                                
-                            } )
-                            : ''
-                        }
-                        </Alert>
-                    </div>
-                </Snackbar>
             </div>
         </>)
 }

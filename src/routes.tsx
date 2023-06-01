@@ -39,14 +39,12 @@ function PrivateRoute({ children}:any) {
 const MyToolbar = withStyles({
     root: {
       display: 'flex',
-      flexDirection: 'column'
-      
+      flexDirection: 'column' 
     },
     textUserName:{
       marginRight: '10px',
       fontSize: '12px'
     }
-    
   })(
     ({ classes, title, onMenuClick, strNomeUsuario, objData }:any) => (
 
@@ -173,14 +171,9 @@ const AllRoutes = ({ classes, variant }:any) => {
     useEffect(() => {
         if(IsAuthenticated().session!== null){
           dispatch(setSession(IsAuthenticated().session));
-       
         }
-       
-     
     },[dispatch])
 
-   
-   
     return (
       <div  className={classes.root}>
         <MyToolbar 
@@ -196,8 +189,6 @@ const AllRoutes = ({ classes, variant }:any) => {
         />
       </div>
     );
-
-
 }
 
 const styles = ({

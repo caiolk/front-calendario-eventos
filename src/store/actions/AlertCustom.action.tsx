@@ -4,7 +4,7 @@ export function getAlertCustom(){
     }
 }
 
-export function setAlertCustom( state:any){
+export function setAlertCustom(state:any){
     return{
         type: 'SET_ALERT_CUSTOM',
         payload: state
