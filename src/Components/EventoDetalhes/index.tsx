@@ -11,6 +11,13 @@ import { setAlertCustom } from '../../store/actions/AlertCustom.action';
 interface IDetalhesParam{
   eventoDetalhes: IEventoDetalhesParam
 }
+
+interface IOrganizadorDetalhesParam{
+  uuid?:string,
+  nome_fantasia?:string,
+  site?:string
+}
+
 const EventoDetalhes = (eventoDetalhes: IDetalhesParam) => {
   const classes = useStyles();
   const session = useSelector( (state:ISessaoParametros) => state.session );
@@ -23,6 +30,8 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam) => {
   const [dataEvento,setDataEvento] = useState("");
   const [urlPagina,setUrlPagina] = useState("");
   const [disabled,setDisabled] = useState(false);
+  const [organizador,setOrganizador] = useState<IOrganizadorDetalhesParam>({})
+  const [firstTime,setFirstTime] = useState(true);
   const eventoTituloRef = useRef<HTMLInputElement>(null);
   const cidadeRef = useRef<HTMLInputElement>(null);
   const ufRef = useRef<HTMLInputElement>(null);
@@ -33,8 +42,9 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam) => {
   const organizadorRef = useRef<HTMLInputElement>(null);
   const [open, setOpen] = useState(false);
   const [loadingInput, setLoadingInput] = useState(false);
-  const [dados, setDados] = useState([]);
+  const [dados, setDados] = useState([eventoDetalhes.eventoDetalhes.organizador]);
   const [busca, setBusca] = useState(null);
+
 
   useEffect(() => {
     if(eventoDetalhes.eventoDetalhes){
@@ -43,6 +53,7 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam) => {
       setCidade(String(eventoDetalhes.eventoDetalhes.cidade))
       setDataEvento(String(eventoDetalhes.eventoDetalhes.evento_data_realizacao));
       setAtivo((eventoDetalhes.eventoDetalhes.ativo === 1 ? true : false));
+      setOrganizador(eventoDetalhes.eventoDetalhes.organizador || {});
     }
   },[eventoDetalhes]);
 
@@ -50,6 +61,7 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam) => {
     dispatch(setAlertCustom({ mensagens: [], title: '', open: false, type: 'info'}));
     setDisabled(true);
     let evento = mountData();
+
     return await api.put(`/eventos/${uuidEvento}`, {...evento},
         { headers: {
             'Authorization': `Bearer ${session.access_token.access_token}`
@@ -62,16 +74,19 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam) => {
         })
   }
   useEffect(() => {
-      const delayDebounceFn = setTimeout(() => {
-        buscaOrganizadores();
-      }, 500)
-  
-      return () => { clearTimeout(delayDebounceFn); setBusca(null); setLoadingInput(false); }
-  }, [busca])
-  const buscaOrganizadores = useCallback( async () => {
+
+      if(!firstTime){
+        const delayDebounceFn = setTimeout(() => {
+          buscaOrganizadores();
+        }, 500)
     
-    let organizador = organizadorRef.current?.value;
-    if(organizador!==""){
+        return () => { clearTimeout(delayDebounceFn); setBusca(null); setLoadingInput(false); }
+      }
+  }, [busca, firstTime])
+
+  const buscaOrganizadores = useCallback( async () => {
+    let _organizador = organizadorRef.current?.value;
+    if(_organizador!==""){
       setLoadingInput(true);
       return await api.get( `/organizador?nome_fantasia=${organizadorRef.current?.value}`,
         { headers: {
@@ -88,12 +103,12 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam) => {
        
     }
   },[])
-console.log(dados);
+
   function mountData(){
     return {
       "uuid": eventoDetalhes.eventoDetalhes.uuid,
       "evento_titulo": eventoTituloRef.current?.value,
-      "organizador_uuid": eventoDetalhes.eventoDetalhes.organizador_uuid,
+      "organizador_uuid": organizador.uuid,
       "uf" : ufRef.current?.value,
       "cidade" : cidadeRef.current?.value,
       "url_pagina": urlPaginaRef.current?.value,
@@ -102,7 +117,7 @@ console.log(dados);
       "ativo": ativoRef.current?.checked === true ? 1 : 0 ,
     };
   }
-console.log(dados);
+
   return (
     <div style={{width : '100%'}}>
     <div className={classes.divRow} >
@@ -142,10 +157,37 @@ console.log(dados);
         />
     </div> 
     <div className={classes.divRow} >
-      <TextField 
-          id={`organizador`} label="Organizador" autoComplete={'false'} size={'small'} className={classes.divValor}
-          defaultValue={eventoDetalhes.eventoDetalhes.organizador?.nome_fantasia} disabled={true}
-          InputLabelProps={{ shrink: true }} style={{ width: '40vw'}}
+    <Autocomplete
+        id="organizador"
+        size={'small'} sx={{ width: 510 }}
+        open={open}
+        onOpen={() =>  { setOpen(true); }}
+        onClose={() => { setOpen(false); }}
+        defaultValue={eventoDetalhes.eventoDetalhes.organizador}
+        isOptionEqualToValue={(option:any, value:any) => option.nome_fantasia === value.nome_fantasia }
+        getOptionLabel={(option:any) => option.nome_fantasia}
+        options={dados}
+        onChange={(event, novoOrganizador:any) => { setOrganizador(novoOrganizador); }}  
+        disabled={disabled}
+        loading={loadingInput}
+        renderInput={(params) => (
+          <TextField
+            required
+            {...params}
+            label="Organizador"
+            inputRef={organizadorRef}
+            onChange={(event:any) => { setBusca(event.value); setFirstTime(false); }}
+            InputProps={{
+              ...params.InputProps,
+              endAdornment: (
+                <>
+                  {loadingInput ? <CircularProgress color="inherit" size={20} /> : null}
+                  {params.InputProps.endAdornment}
+                </>
+              ),
+            }}
+        />
+      )}
       />
       <TextField 
         id={`data_evento`} label="Realização" autoComplete={'false'} size={'small'} className={classes.divValor}
@@ -166,44 +208,6 @@ console.log(dados);
       </TextField>
       <Switch color="primary"  size="medium"  checked={ativo} disabled={disabled} onChange={(event:any) => setAtivo(event.target.checked)} inputRef={ativoRef} />
     </div>
-    <div className={classes.divRow} >
-      <Autocomplete
-        id="organizador-autocomplete"
-        size={'small'}
-        sx={{ width: 510 }}
-        open={open}
-        onOpen={() => {
-          setOpen(true);
-        }}
-        onClose={() => {
-          setOpen(false);
-        }}
-        
-        isOptionEqualToValue={(option:any, value:any) => option.nome_fantasia === value.nome_fantasia}
-        getOptionLabel={(option:any) => option.nome_fantasia}
-        options={dados}
-        loading={loadingInput}
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            label="Organizador"
-            inputRef={organizadorRef}
-            onChange={(event:any) => { setBusca(event.value) }}
-            InputProps={{
-              ...params.InputProps,
-              endAdornment: (
-                <>
-                  {loadingInput ? <CircularProgress color="inherit" size={20} /> : null}
-                  {params.InputProps.endAdornment}
-                </>
-              ),
-            }}
-        />
-      )}
-    />
-
-    </div>
-
     <div className={classes.divRowEnd} >
       <div style={{marginRight: '10px'}}>
         {disabled ? (<><CircularProgress size={30} /></>) : (<></>)}
