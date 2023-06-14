@@ -20,6 +20,8 @@ const Eventos = () => {
     const session = useSelector( (state:ISessaoParametros) => state.session );
     const dispatch = useDispatch();
     const [dadosEventos, setDadosEventos] = useState([]);
+    const [listaStatus, setListaStatus] = useState([]);
+    const [listaEstados, setListaEstados] = useState([]);
     const [evento,setEvento] = useState("");
     const [uf,setUF] = useState("");
     const [status,setStatus] = useState("");
@@ -34,7 +36,34 @@ const Eventos = () => {
     const dataFimRef = useRef<HTMLInputElement>(null);
     const [buscaParametros,setBuscaParametros] = useState("");
     const [loading, setLoading] = useState(true);
-    
+    const [firstTime, setFirstTime] = useState(true);
+
+    async function buscaStatus(){
+        return await api.get( `/status`,
+            { headers: {
+                'Authorization': `Bearer ${session.access_token.access_token}`
+            } }).then( (result:any) => {
+                if(result.data.status !== false){
+                    setListaStatus(result.data.data);
+                }
+            }).catch( (error:any) => {
+                console.log(error);
+            })
+    }
+
+    async function buscaEstados(){
+        return await api.get( `/estados?only=uf`,
+            { headers: {
+                'Authorization': `Bearer ${session.access_token.access_token}`
+            } }).then( (result:any) => {
+                if(result.data.status !== false){
+                    setListaEstados(result.data.data);
+                }
+            }).catch( (error:any) => {
+                console.log(error);
+            })
+    }
+
     async function buscaEventos(buscaParametros:string){
         dispatch(setAlertCustom({ mensagens: [], title: '', open: false, type: 'info'}));
         return await api.get( `/eventos?${buscaParametros}`,
@@ -100,8 +129,13 @@ const Eventos = () => {
     useEffect(() =>{
         if((session !== null && session.access_token.access_token !== undefined && session.access_token.access_token !== "") || buscaParametros !== ""){
             buscaEventos(buscaParametros);
+            if(firstTime){
+                buscaStatus();
+                buscaEstados();
+                setFirstTime(false);
+            }
         } 
-    },[session,buscaParametros])
+    },[session,buscaParametros,firstTime])
 
     return (<>
                 <AlertCustom/>
@@ -146,11 +180,9 @@ const Eventos = () => {
                                         onChange={(event:any) => { setUF(event.value)}} 
                                     >
                                         <option value={''}> Todos </option>
-                                        <option value={'PR'}> PR </option>
-                                        <option value={'SC'}> SC </option>
-                                        <option value={'RS'}> RS </option>
-                                        <option value={'SP'}> SP </option>
-                                        <option value={'RJ'}> RJ </option>
+                                        { listaEstados.length > 0 ? 
+                                            listaEstados.map( ( estado:string ) => { return (<><option value={estado}> {estado} </option></>) }) :'' 
+                                        }
                                     </TextField>
                                     <TextField
                                         id={`status`}
@@ -164,10 +196,9 @@ const Eventos = () => {
                                         onChange={(event:any) => setStatus(event.value)} 
                                     >
                                         <option value={''}> Todos </option>
-                                        <option value={'Aberto'}> Aberto </option>
-                                        <option value={'Encerrado'}> Encerrado </option>
-                                        <option value={'Cancelado'}> Cancelado </option>
-                                        <option value={'Esgotado'}>  Esgotado </option>
+                                        { listaStatus.length > 0 ? 
+                                            listaStatus.map( ( status:string ) => { return (<><option value={status}> {status} </option></>) }) :'' 
+                                        }
 
                                     </TextField>
                                     <TextField
