@@ -127,8 +127,10 @@ const Eventos = () => {
     }
     
     useEffect(() =>{
-        if((session !== null && session.access_token.access_token !== undefined && session.access_token.access_token !== "") || buscaParametros !== ""){
+        if((session !== null && session.access_token.access_token !== undefined && session.access_token.access_token !== "") && buscaParametros !== ""){
+            
             buscaEventos(buscaParametros);
+            setBuscaParametros("");
             if(firstTime){
                 buscaStatus();
                 buscaEstados();
@@ -244,6 +246,16 @@ const Eventos = () => {
                                         onClick={() => buscar()} >
                                         Buscar
                                     </Button>
+                        
+                                    <Button 
+                                        className={classes.buttonBuscar}
+                                        style={{ background: '#04ccb9', color:'#fff' }}
+                                        variant="contained" 
+                                        size="small"
+                                        onClick={() => {}} >
+                                        Novo
+                                    </Button>
+                        
                                 </div>   
                             </div>
                     </Paper>
@@ -257,8 +269,10 @@ const Eventos = () => {
                             (<TabelaResultado arDados={dadosEventos}/>) : 
                             (<><div> Nenhum evento encontrado.</div></>)
                         } 
+                        
                     </div>
                 </Paper>
+                
             </div>
         </>)
 }
