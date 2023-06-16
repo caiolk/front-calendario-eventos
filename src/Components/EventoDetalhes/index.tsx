@@ -9,7 +9,8 @@ import useStyles from './styles';
 import { setAlertCustom } from '../../store/actions/AlertCustom.action';
 
 interface IDetalhesParam{
-  eventoDetalhes: IEventoDetalhesParam
+  eventoDetalhes: IEventoDetalhesParam,
+  tipo?: string
 }
 
 interface IOrganizadorDetalhesParam{
@@ -18,7 +19,7 @@ interface IOrganizadorDetalhesParam{
   site?:string
 }
 
-const EventoDetalhes = (eventoDetalhes: IDetalhesParam) => {
+const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
   const classes = useStyles();
   const session = useSelector( (state:ISessaoParametros) => state.session );
   const dispatch = useDispatch();
@@ -42,9 +43,9 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam) => {
   const organizadorRef = useRef<HTMLInputElement>(null);
   const [open, setOpen] = useState(false);
   const [loadingInput, setLoadingInput] = useState(false);
-  const [dados, setDados] = useState([eventoDetalhes.eventoDetalhes.organizador]);
+  const [dados, setDados] = useState( eventoDetalhes.eventoDetalhes.organizador ? [eventoDetalhes.eventoDetalhes.organizador] : []);
   const [busca, setBusca] = useState(null);
-
+  const [tipoModal, setTipoModal] = useState("");
 
   useEffect(() => {
     if(eventoDetalhes.eventoDetalhes){
@@ -55,13 +56,28 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam) => {
       setAtivo((eventoDetalhes.eventoDetalhes.ativo === 1 ? true : false));
       setOrganizador(eventoDetalhes.eventoDetalhes.organizador || {});
     }
-  },[eventoDetalhes]);
+    if(eventoDetalhes.tipo !== undefined && eventoDetalhes.tipo !== ""){
+      setTipoModal(eventoDetalhes.tipo)
+      setFirstTime(false);
+    }
+  },[eventoDetalhes, tipo]);
 
-  async function salvarEvento(uuidEvento:string){
+  async function salvarEvento(uuidEvento?:string){
     dispatch(setAlertCustom({ mensagens: [], title: '', open: false, type: 'info'}));
     setDisabled(true);
     let evento = mountData();
-
+    if(tipoModal == 'novo'){
+      return await api.post(`/eventos/`, {...evento},
+        { headers: {
+            'Authorization': `Bearer ${session.access_token.access_token}`
+        }}).then( (result:any) => {
+            dispatch(setAlertCustom({ mensagens: ['Evento salvo com sucesso!'], title: 'Sucesso', open: true, type: 'success'}));
+            setDisabled(false);
+        }).catch( (error:any) => {
+          setDisabled(false);
+          dispatch(setAlertCustom({ mensagens: ['Erro ao salvar!'], title: 'Erro', open: true, type: 'error'}));
+        })  
+    }
     return await api.put(`/eventos/${uuidEvento}`, {...evento},
         { headers: {
             'Authorization': `Bearer ${session.access_token.access_token}`
@@ -86,7 +102,7 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam) => {
 
   const buscaOrganizadores = useCallback( async () => {
     let _organizador = organizadorRef.current?.value;
-    if(_organizador!==""){
+    if(_organizador!=="" || tipoModal !== ""){
       setLoadingInput(true);
       return await api.get( `/organizador?nome_fantasia=${organizadorRef.current?.value}`,
         { headers: {
@@ -105,10 +121,10 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam) => {
   },[])
 
   function mountData(){
-    return {
-      "uuid": eventoDetalhes.eventoDetalhes.uuid,
+
+    let data = {
       "evento_titulo": eventoTituloRef.current?.value,
-      "organizador_uuid": organizador.uuid,
+      "organizador_uuid": organizador.uuid ?? null,
       "uf" : ufRef.current?.value,
       "cidade" : cidadeRef.current?.value,
       "url_pagina": urlPaginaRef.current?.value,
@@ -116,6 +132,11 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam) => {
       "status_string": statusRef.current?.value,
       "ativo": ativoRef.current?.checked === true ? 1 : 0 ,
     };
+    if(eventoDetalhes.eventoDetalhes.uuid !== undefined){
+      data = Object.assign(data, { "uuid" : eventoDetalhes.eventoDetalhes.uuid});
+    }
+    
+    return data;
   }
 
   return (

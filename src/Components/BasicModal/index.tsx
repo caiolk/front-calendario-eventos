@@ -23,7 +23,7 @@ const style = {
 };
 
 export interface IModalHandles {
-  openModal: (uuid:string) => void;
+  openModal: (uuid?:string, tipoModal?:string) => void;
   closeModal : () => void;
 }
 
@@ -31,19 +31,26 @@ const BasicModal: React.ForwardRefRenderFunction<IModalHandles> = (props, ref) =
   const classes = useStyles();
   const [open, setOpen] = useState(false);
   const [uuidEvento, setUuidEvento] = useState("");
+  const [tipo, setTipo] = useState("");
   const [dadosEventos, setDadosEventos] = useState<IEventoDetalhesParam>({});
   const session = useSelector( (state:ISessaoParametros) => state.session );
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
   
-  const openModal = useCallback( (uuid:string) => {
-      setDadosEventos({});
-      if(uuid!==""){
-          buscaEventos(uuid)
-      }
-      setOpen(true);
-      setLoading(true);
+  const openModal = useCallback( (uuid?:string, tipoModal?:string) => {
+        setDadosEventos({});
+        
+        if(tipoModal===undefined){
+          setLoading(true);  
+          if(uuid!==""){
+              buscaEventos(uuid)
+          }
+        }else{
+          setTipo(tipoModal);
+          setLoading(false);  
+        }
+        setOpen(true);
   },[] );
 
   const closeModal = useCallback( () => {
@@ -59,7 +66,7 @@ const BasicModal: React.ForwardRefRenderFunction<IModalHandles> = (props, ref) =
       }
   });
 
-  async function buscaEventos(uuidEvento:string){
+  async function buscaEventos(uuidEvento?:string){
     
     if(uuidEvento==="") return;
     
@@ -98,8 +105,8 @@ const BasicModal: React.ForwardRefRenderFunction<IModalHandles> = (props, ref) =
                 <div>Detalhes da corrida</div>
             </div>
             <div className={classes.divPrincipal} >      
-                {dadosEventos !== null && dadosEventos !== undefined && Object.keys(dadosEventos).length > 0  ? 
-                  (<><EventoDetalhes eventoDetalhes={dadosEventos} /></>) : 
+                { (dadosEventos !== null && dadosEventos !== undefined && Object.keys(dadosEventos).length > 0) || (tipo !== undefined && tipo !== "") ? 
+                  (<><EventoDetalhes eventoDetalhes={dadosEventos} tipo={tipo} /></>) : 
                   (<><div> Detalhe não disponível.</div></>)
                 }  
             </div>
