@@ -15,5 +15,16 @@ export default interface IEventoDetalhesParam{
         nome_fantasia: string,
         site: string
     },
-    categoria?: []
+    categoria?: [],
+    fonte_uuid?: string,
+    fonte?:{
+        uuid: string,
+        nome: string
+    },
+    tipo_evento_uuid?: string,
+    tipo?:{
+        uuid: string,
+        nome: string
+    }
+
 }

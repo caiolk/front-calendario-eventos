@@ -9,7 +9,8 @@ import useStyles from './styles';
 import { setAlertCustom } from '../../store/actions/AlertCustom.action';
 
 interface IDetalhesParam{
-  eventoDetalhes: IEventoDetalhesParam
+  eventoDetalhes: IEventoDetalhesParam,
+  tipo?: string
 }
 
 interface IOrganizadorDetalhesParam{
@@ -18,7 +19,7 @@ interface IOrganizadorDetalhesParam{
   site?:string
 }
 
-const EventoDetalhes = (eventoDetalhes: IDetalhesParam) => {
+const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
   const classes = useStyles();
   const session = useSelector( (state:ISessaoParametros) => state.session );
   const dispatch = useDispatch();
@@ -40,11 +41,17 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam) => {
   const dataEventoRef = useRef<HTMLInputElement>(null);
   const ativoRef = useRef<HTMLInputElement>(null);
   const organizadorRef = useRef<HTMLInputElement>(null);
+  const fonteRef = useRef<HTMLInputElement>(null);
+  const tipoCorridaRef = useRef<HTMLInputElement>(null);
   const [open, setOpen] = useState(false);
   const [loadingInput, setLoadingInput] = useState(false);
-  const [dados, setDados] = useState([eventoDetalhes.eventoDetalhes.organizador]);
+  const [dados, setDados] = useState( eventoDetalhes.eventoDetalhes.organizador ? [eventoDetalhes.eventoDetalhes.organizador] : []);
   const [busca, setBusca] = useState(null);
-
+  const [tipoModal, setTipoModal] = useState("");
+  const [listaTipoCorridas, setListaTipoCorridas] = useState([]);
+  const [listaFontes, setListaFontes] = useState([]);
+  const [fonte, setFonte] = useState("");
+  const [tipoCorrida, setTipoCorrida] = useState("");
 
   useEffect(() => {
     if(eventoDetalhes.eventoDetalhes){
@@ -54,14 +61,32 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam) => {
       setDataEvento(String(eventoDetalhes.eventoDetalhes.evento_data_realizacao));
       setAtivo((eventoDetalhes.eventoDetalhes.ativo === 1 ? true : false));
       setOrganizador(eventoDetalhes.eventoDetalhes.organizador || {});
+      setFonte(eventoDetalhes.eventoDetalhes.fonte?.uuid || "")
+      setTipoCorrida(eventoDetalhes.eventoDetalhes.tipo?.uuid || "")
     }
-  },[eventoDetalhes]);
+    if(eventoDetalhes.tipo !== undefined && eventoDetalhes.tipo !== ""){
+      setTipoModal(eventoDetalhes.tipo)
+      setFirstTime(false);
+    }
+  },[eventoDetalhes, tipo]);
 
-  async function salvarEvento(uuidEvento:string){
+  async function salvarEvento(uuidEvento?:string){
     dispatch(setAlertCustom({ mensagens: [], title: '', open: false, type: 'info'}));
     setDisabled(true);
     let evento = mountData();
 
+    if(tipoModal == 'novo'){
+      return await api.post(`/eventos/`, {...evento},
+        { headers: {
+            'Authorization': `Bearer ${session.access_token.access_token}`
+        }}).then( (result:any) => {
+            dispatch(setAlertCustom({ mensagens: ['Evento salvo com sucesso!'], title: 'Sucesso', open: true, type: 'success'}));
+            setDisabled(false);
+        }).catch( (error:any) => {
+          setDisabled(false);
+          dispatch(setAlertCustom({ mensagens: ['Erro ao salvar!'], title: 'Erro', open: true, type: 'error'}));
+        })  
+    }
     return await api.put(`/eventos/${uuidEvento}`, {...evento},
         { headers: {
             'Authorization': `Bearer ${session.access_token.access_token}`
@@ -74,19 +99,20 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam) => {
         })
   }
   useEffect(() => {
-
+    buscaTipoCorridas();
+    buscaFontes();
       if(!firstTime){
         const delayDebounceFn = setTimeout(() => {
           buscaOrganizadores();
         }, 500)
-    
+       
         return () => { clearTimeout(delayDebounceFn); setBusca(null); setLoadingInput(false); }
       }
   }, [busca, firstTime])
 
   const buscaOrganizadores = useCallback( async () => {
     let _organizador = organizadorRef.current?.value;
-    if(_organizador!==""){
+    if(_organizador!=="" || tipoModal !== ""){
       setLoadingInput(true);
       return await api.get( `/organizador?nome_fantasia=${organizadorRef.current?.value}`,
         { headers: {
@@ -104,18 +130,53 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam) => {
     }
   },[])
 
+  const buscaTipoCorridas = useCallback( async () => {
+      return await api.get( `/tipos/`,
+        { headers: {
+            'Authorization': `Bearer ${session.access_token.access_token}`
+        } }).then( (result:any) => {
+            if(result.data.status !== false){
+              setListaTipoCorridas(result.data.data);
+            }
+            
+        }).catch( (error:any) => {
+          setListaTipoCorridas([]);
+        })
+  },[])
+
+  const buscaFontes = useCallback( async () => {
+    return await api.get( `/fontes/`,
+      { headers: {
+          'Authorization': `Bearer ${session.access_token.access_token}`
+      } }).then( (result:any) => {
+          if(result.data.status !== false){
+            setListaFontes(result.data.data);
+          }
+          
+      }).catch( (error:any) => {
+        setListaFontes([]);
+      })
+  },[])
+
   function mountData(){
-    return {
-      "uuid": eventoDetalhes.eventoDetalhes.uuid,
+
+    let data = {
       "evento_titulo": eventoTituloRef.current?.value,
-      "organizador_uuid": organizador.uuid,
+      "organizador_uuid": organizador.uuid ?? null,
       "uf" : ufRef.current?.value,
       "cidade" : cidadeRef.current?.value,
       "url_pagina": urlPaginaRef.current?.value,
       "evento_data_realizacao": dataEventoRef.current?.value,
       "status_string": statusRef.current?.value,
+      "fonte_uuid": fonteRef.current?.value,
+      "tipo_evento_uuid": tipoCorridaRef.current?.value,
       "ativo": ativoRef.current?.checked === true ? 1 : 0 ,
     };
+    if(eventoDetalhes.eventoDetalhes.uuid !== undefined){
+      data = Object.assign(data, { "uuid" : eventoDetalhes.eventoDetalhes.uuid});
+    }
+    
+    return data;
   }
 
   return (
@@ -207,6 +268,26 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam) => {
         <option value={'Esgotado'} > Esgotado  </option>
       </TextField>
       <Switch color="primary"  size="medium"  checked={ativo} disabled={disabled} onChange={(event:any) => setAtivo(event.target.checked)} inputRef={ativoRef} />
+    </div>
+    <div className={classes.divRowEnd} >
+      <TextField
+          select id={`tipoCorrida`} label="Tipo Corrida" size={'small'}
+          InputLabelProps={{ shrink: true }} SelectProps={{ native: true }}
+          value={tipoCorrida} onChange={(event:any) => setTipoCorrida(event.value) } 
+          inputRef={tipoCorridaRef} disabled={disabled}
+        >
+        <option value={''}> - </option>
+        { listaTipoCorridas.length > 0 ? listaTipoCorridas.map( ( tipoCorrida:any ) => { return (<><option value={tipoCorrida.uuid}> {tipoCorrida.nome} </option></>) }) :'' }
+      </TextField>
+      <TextField
+        select id={`fonte`} label="Fonte" size={'small'}
+        InputLabelProps={{ shrink: true }} SelectProps={{ native: true }}
+        value={fonte} onChange={(event:any) => setFonte(event.value)} 
+        inputRef={fonteRef} disabled={disabled}
+      >
+        <option value={''}> - </option>
+        { listaFontes.length > 0 ? listaFontes.map( ( fonte:any ) => { return (<><option value={fonte.uuid}> {fonte.nome} </option></>) }) :'' }
+      </TextField>
     </div>
     <div className={classes.divRowEnd} >
       <div style={{marginRight: '10px'}}>

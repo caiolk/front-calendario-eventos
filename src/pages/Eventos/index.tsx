@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setAlertCustom } from '../../store/actions/AlertCustom.action';
 import ISessaoParametros from '../../shared/interfaces/ISessaoParametros'
 import IAlertCustomParm from '../../shared/interfaces/IAlertCustomParm'
+import BasicModal, { IModalHandles } from '../../Components/BasicModal';
 
 import TabelaResultado from '../../Components/TabelaResultado';
 import AlertCustom from '../../Components/AlertCustom';
@@ -14,6 +15,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { DatePicker } from '@mui/x-date-pickers'
 import ptBR from 'dayjs/locale/pt-br';
 import moment from "moment";
+
 
 const Eventos = () => {
     const classes = useStyles();
@@ -37,6 +39,7 @@ const Eventos = () => {
     const [buscaParametros,setBuscaParametros] = useState("");
     const [loading, setLoading] = useState(true);
     const [firstTime, setFirstTime] = useState(true);
+    const modalRef = useRef<IModalHandles>(null);
 
     async function buscaStatus(){
         return await api.get( `/status`,
@@ -126,16 +129,23 @@ const Eventos = () => {
     
     }
     
+    function openModalRef(uuid?:string, tipoModal?:string){
+  
+        modalRef.current?.openModal(uuid, tipoModal);
+        
+      }
+
     useEffect(() =>{
-        if((session !== null && session.access_token.access_token !== undefined && session.access_token.access_token !== "") && buscaParametros !== ""){
+  
+        if((session !== null && session.access_token.access_token !== undefined && session.access_token.access_token !== "") || buscaParametros !== ""){
             
-            buscaEventos(buscaParametros);
-            setBuscaParametros("");
-            if(firstTime){
+           if(firstTime){
                 buscaStatus();
                 buscaEstados();
                 setFirstTime(false);
             }
+            buscaEventos(buscaParametros);
+            setBuscaParametros("");
         } 
     },[session,buscaParametros,firstTime])
 
@@ -252,7 +262,7 @@ const Eventos = () => {
                                         style={{ background: '#04ccb9', color:'#fff' }}
                                         variant="contained" 
                                         size="small"
-                                        onClick={() => {}} >
+                                        onClick={() => {openModalRef("", "novo")} } >
                                         Novo
                                     </Button>
                         
@@ -272,7 +282,7 @@ const Eventos = () => {
                         
                     </div>
                 </Paper>
-                
+                <BasicModal ref={modalRef}  />
             </div>
         </>)
 }
