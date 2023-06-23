@@ -5,6 +5,8 @@ import { debounce } from "lodash"
 import api from '../../services/api';
 import ISessaoParametros from '../../shared/interfaces/ISessaoParametros'
 import IEventoDetalhesParam from '../../shared/interfaces/IEventoDetalhesParam'
+import ITipoCorridas from '../../shared/interfaces/ITipoCorridas'
+import IFonteCorridas from '../../shared/interfaces/IFonteCorridas'
 import useStyles from './styles';
 import { setAlertCustom } from '../../store/actions/AlertCustom.action';
 
@@ -48,10 +50,12 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
   const [dados, setDados] = useState( eventoDetalhes.eventoDetalhes.organizador ? [eventoDetalhes.eventoDetalhes.organizador] : []);
   const [busca, setBusca] = useState(null);
   const [tipoModal, setTipoModal] = useState("");
-  const [listaTipoCorridas, setListaTipoCorridas] = useState([]);
-  const [listaFontes, setListaFontes] = useState([]);
   const [fonte, setFonte] = useState("");
   const [tipoCorrida, setTipoCorrida] = useState("");
+  const listaTipoCorridas = useSelector( (state:ITipoCorridas) => state.tipoCorridas );
+  const listaFontes = useSelector( (state:IFonteCorridas) => state.fonteCorridas );
+  const listaStatus = useSelector( (state:any) => state.status );
+  const listaEstados = useSelector( (state:any) => state.estados );
 
   useEffect(() => {
     if(eventoDetalhes.eventoDetalhes){
@@ -99,8 +103,6 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
         })
   }
   useEffect(() => {
-    buscaTipoCorridas();
-    buscaFontes();
       if(!firstTime){
         const delayDebounceFn = setTimeout(() => {
           buscaOrganizadores();
@@ -128,34 +130,6 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
         })
        
     }
-  },[])
-
-  const buscaTipoCorridas = useCallback( async () => {
-      return await api.get( `/tipos/`,
-        { headers: {
-            'Authorization': `Bearer ${session.access_token.access_token}`
-        } }).then( (result:any) => {
-            if(result.data.status !== false){
-              setListaTipoCorridas(result.data.data);
-            }
-            
-        }).catch( (error:any) => {
-          setListaTipoCorridas([]);
-        })
-  },[])
-
-  const buscaFontes = useCallback( async () => {
-    return await api.get( `/fontes/`,
-      { headers: {
-          'Authorization': `Bearer ${session.access_token.access_token}`
-      } }).then( (result:any) => {
-          if(result.data.status !== false){
-            setListaFontes(result.data.data);
-          }
-          
-      }).catch( (error:any) => {
-        setListaFontes([]);
-      })
   },[])
 
   function mountData(){
@@ -196,11 +170,7 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
         disabled={disabled}
       >
         <option value={'-'} > -  </option>
-        <option value={'PR'}> PR </option>
-        <option value={'SC'}> SC </option>
-        <option value={'RS'}> RS </option>
-        <option value={'SP'}> SP </option>
-        <option value={'RJ'}> RJ </option>
+        { listaEstados !== undefined && listaEstados.length > 0 ? listaEstados.map( ( uf:any ) => { return (<><option value={uf}> {uf} </option></>) }) :'' }
       </TextField>
       <TextField 
         id={`cidade`} label="Cidade" autoComplete={'false'} size={'small'} className={classes.divValor}
@@ -262,10 +232,7 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
         value={status} onChange={(event:any) => setStatus(event.value)} 
         inputRef={statusRef} disabled={disabled}
       >
-        <option value={'Aberto'}   > Aberto    </option>
-        <option value={'Encerrado'}> Encerrado </option>
-        <option value={'Cancelado'}> Cancelado </option>
-        <option value={'Esgotado'} > Esgotado  </option>
+        { listaStatus !== undefined && listaStatus.length > 0 ? listaStatus.map( ( _status:any ) => { return (<><option value={_status}> {_status} </option></>) }) :'' }
       </TextField>
       <Switch color="primary"  size="medium"  checked={ativo} disabled={disabled} onChange={(event:any) => setAtivo(event.target.checked)} inputRef={ativoRef} />
     </div>
@@ -277,7 +244,7 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
           inputRef={tipoCorridaRef} disabled={disabled}
         >
         <option value={''}> - </option>
-        { listaTipoCorridas.length > 0 ? listaTipoCorridas.map( ( tipoCorrida:any ) => { return (<><option value={tipoCorrida.uuid}> {tipoCorrida.nome} </option></>) }) :'' }
+        { listaTipoCorridas !== undefined && listaTipoCorridas.length > 0 ? listaTipoCorridas.map( ( tipoCorrida:any ) => { return (<><option value={tipoCorrida.uuid}> {tipoCorrida.nome} </option></>) }) :'' }
       </TextField>
       <TextField
         select id={`fonte`} label="Fonte" size={'small'}
@@ -286,7 +253,7 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
         inputRef={fonteRef} disabled={disabled}
       >
         <option value={''}> - </option>
-        { listaFontes.length > 0 ? listaFontes.map( ( fonte:any ) => { return (<><option value={fonte.uuid}> {fonte.nome} </option></>) }) :'' }
+        { listaFontes !== undefined && listaFontes.length > 0 ? listaFontes.map( ( fonte:any ) => { return (<><option value={fonte.uuid}> {fonte.nome} </option></>) }) :'' }
       </TextField>
     </div>
     <div className={classes.divRowEnd} >
