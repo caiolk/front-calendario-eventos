@@ -3,8 +3,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import useStyles from './styles';
 import ISessaoParametros from '../../shared/interfaces/ISessaoParametros'
 import ITipoCorridas from '../../shared/interfaces/ITipoCorridas'
+import IFonteCorridas from '../../shared/interfaces/IFonteCorridas'
 
 import { setTipoCorridas } from '../../store/actions/TipoCorridas.action';
+import { setFonteCorridas } from '../../store/actions/FonteCorridas.action';
+
 import api from '../../services/api'
 
 const Home = () => {
@@ -14,8 +17,8 @@ const Home = () => {
     const [firstTime, setFirstTime] = useState(false);
     const session = useSelector( (state:ISessaoParametros) => state.session );
     const tipoCorridas = useSelector( (state:ITipoCorridas) => state.tipoCorridas );
-    const [listaTipoCorridas, setListaTipoCorridas] = useState([]);
-    const [listaFontes, setListaFontes] = useState([]);
+    const fonteCorridas = useSelector( (state:IFonteCorridas) => state.fonteCorridas );
+
     useEffect(() => {
 
         if(!firstTime && session.access_token.access_token && session.access_token.access_token !== undefined){
@@ -44,16 +47,14 @@ const Home = () => {
             { headers: {
                 'Authorization': `Bearer ${token}`
             } }).then( (result:any) => {
-                if(result.data.status !== false){
-                setListaFontes(result.data.data);
+                if(result.data.status){
+                    dispatch(setFonteCorridas(result.data.data));
                 }
                 
-            }).catch( (error:any) => {
-            setListaFontes([]);
-            })
+            }).catch( (error:any) => { })
     },[])
   
-    console.log('tipoCorridas',tipoCorridas);
+    console.log('tipoCorridas',tipoCorridas, fonteCorridas);
     return (<>
             {/* <Backdrop
                 sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
