@@ -3,7 +3,8 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setAlertCustom } from '../../store/actions/AlertCustom.action';
 import ISessaoParametros from '../../shared/interfaces/ISessaoParametros'
-import IAlertCustomParm from '../../shared/interfaces/IAlertCustomParm'
+import ITipoCorridas from '../../shared/interfaces/ITipoCorridas'
+import IFonteCorridas from '../../shared/interfaces/IFonteCorridas'
 import BasicModal, { IModalHandles } from '../../Components/BasicModal';
 
 import TabelaResultado from '../../Components/TabelaResultado';
@@ -20,10 +21,13 @@ import moment from "moment";
 const Eventos = () => {
     const classes = useStyles();
     const session = useSelector( (state:ISessaoParametros) => state.session );
+    const tipoCorridas = useSelector( (state:ITipoCorridas) => state.tipoCorridas );
+    const fonteCorridas = useSelector( (state:IFonteCorridas) => state.fonteCorridas );
+    const listaStatus = useSelector( (state:any) => state.status );
+    const listaEstados = useSelector( (state:any) => state.estados );
     const dispatch = useDispatch();
     const [dadosEventos, setDadosEventos] = useState([]);
-    const [listaStatus, setListaStatus] = useState([]);
-    const [listaEstados, setListaEstados] = useState([]);
+
     const [evento,setEvento] = useState("");
     const [uf,setUF] = useState("");
     const [status,setStatus] = useState("");
@@ -40,32 +44,6 @@ const Eventos = () => {
     const [loading, setLoading] = useState(true);
     const [firstTime, setFirstTime] = useState(true);
     const modalRef = useRef<IModalHandles>(null);
-
-    async function buscaStatus(){
-        return await api.get( `/status`,
-            { headers: {
-                'Authorization': `Bearer ${session.access_token.access_token}`
-            } }).then( (result:any) => {
-                if(result.data.status !== false){
-                    setListaStatus(result.data.data);
-                }
-            }).catch( (error:any) => {
-                console.log(error);
-            })
-    }
-
-    async function buscaEstados(){
-        return await api.get( `/estados?only=uf`,
-            { headers: {
-                'Authorization': `Bearer ${session.access_token.access_token}`
-            } }).then( (result:any) => {
-                if(result.data.status !== false){
-                    setListaEstados(result.data.data);
-                }
-            }).catch( (error:any) => {
-                console.log(error);
-            })
-    }
 
     async function buscaEventos(buscaParametros:string){
         dispatch(setAlertCustom({ mensagens: [], title: '', open: false, type: 'info'}));
@@ -133,17 +111,12 @@ const Eventos = () => {
   
         modalRef.current?.openModal(uuid, tipoModal);
         
-      }
+    }
 
     useEffect(() =>{
   
         if((session !== null && session.access_token.access_token !== undefined && session.access_token.access_token !== "") || buscaParametros !== ""){
             
-           if(firstTime){
-                buscaStatus();
-                buscaEstados();
-                setFirstTime(false);
-            }
             buscaEventos(buscaParametros);
             setBuscaParametros("");
         } 
