@@ -7,6 +7,8 @@ import IFonteCorridas from '../../shared/interfaces/IFonteCorridas'
 
 import { setTipoCorridas } from '../../store/actions/TipoCorridas.action';
 import { setFonteCorridas } from '../../store/actions/FonteCorridas.action';
+import { setStatus } from '../../store/actions/Status.action';
+import { setEstados } from '../../store/actions/Estados.action';
 
 import api from '../../services/api'
 
@@ -18,12 +20,16 @@ const Home = () => {
     const session = useSelector( (state:ISessaoParametros) => state.session );
     const tipoCorridas = useSelector( (state:ITipoCorridas) => state.tipoCorridas );
     const fonteCorridas = useSelector( (state:IFonteCorridas) => state.fonteCorridas );
+    const status = useSelector( (state:any) => state.status );
+    const estados = useSelector( (state:any) => state.estados );
 
     useEffect(() => {
 
         if(!firstTime && session.access_token.access_token && session.access_token.access_token !== undefined){
             buscaTipoCorridas(session.access_token.access_token);
             buscaFontes(session.access_token.access_token);
+            buscaStatus(session.access_token.access_token);
+            buscaEstados(session.access_token.access_token);
         } 
        
     },[firstTime, session])
@@ -53,8 +59,34 @@ const Home = () => {
                 
             }).catch( (error:any) => { })
     },[])
-  
-    console.log('tipoCorridas',tipoCorridas, fonteCorridas);
+    
+    const buscaStatus = useCallback( async (token?:string) => {
+        let _token = token != undefined ? token :  session.access_token.access_token
+        return await api.get( `/status/`,
+            { headers: {
+                'Authorization': `Bearer ${token}`
+            } }).then( (result:any) => {
+                if(result.data.status){
+                    dispatch(setStatus(result.data.data));
+                }
+                
+            }).catch( (error:any) => { })
+    },[])
+
+    const buscaEstados = useCallback( async (token?:string) => {
+        let _token = token != undefined ? token :  session.access_token.access_token
+        return await api.get( `/estados?only=uf`,
+            { headers: {
+                'Authorization': `Bearer ${token}`
+            } }).then( (result:any) => {
+                if(result.data.status){
+                    dispatch(setEstados(result.data.data));
+                }
+                
+            }).catch( (error:any) => { })
+    },[])
+
+console.log(status, estados)
     return (<>
             {/* <Backdrop
                 sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}

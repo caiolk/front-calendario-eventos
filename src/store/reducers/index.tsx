@@ -5,11 +5,15 @@ import loading from './Loading';
 import alertCustom from './AlertCustom';
 import tipoCorridas from './TipoCorridas';
 import fonteCorridas from './FonteCorridas';
+import estados from './Estados';
+import status from './Status';
 
 export default combineReducers({
     session,
     loading,
     alertCustom,
     tipoCorridas,
-    fonteCorridas
+    fonteCorridas,
+    estados,
+    status
 })
