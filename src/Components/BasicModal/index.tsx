@@ -1,6 +1,10 @@
 import React, { useEffect, useState,  useCallback, forwardRef, useImperativeHandle } from 'react';
 import { useSelector } from 'react-redux';
-import { TextField, Box, Paper, Select , Button, Snackbar, Alert, Backdrop, CircularProgress, IconButton } from '@mui/material';
+import { TextField, Box, Paper, Select , Button, Snackbar, Alert, Backdrop, CircularProgress, Tabs, Tab } from '@mui/material';
+import TabContext from '@mui/lab/TabContext';
+import TabList from '@mui/lab/TabList';
+import TabPanel from '@mui/lab/TabPanel';
+
 import Modal from '@mui/material/Modal';
 import api from '../../services/api';
 import ISessaoParametros from '../../shared/interfaces/ISessaoParametros'
@@ -28,6 +32,11 @@ export interface IModalHandles {
 }
 
 const BasicModal: React.ForwardRefRenderFunction<IModalHandles> = (props, ref) => {
+  const [value, setValue] = React.useState('1');
+
+  const handleChange = (event: React.SyntheticEvent, newValue: string) => {
+    setValue(newValue);
+  };
   const classes = useStyles();
   const [open, setOpen] = useState(false);
   const [uuidEvento, setUuidEvento] = useState("");
@@ -102,14 +111,27 @@ const BasicModal: React.ForwardRefRenderFunction<IModalHandles> = (props, ref) =
               Fechar X
             </Button>
             <div className={classes.info} style={{ flexDirection: 'column',  justifyContent:'center', alignItems:'center', overflow: 'auto', width: '100%' }} >
-                <div>Detalhes da corrida</div>
+                <div>Detalhes do evento</div>
             </div>
-            <div className={classes.divPrincipal} >      
-                { (dadosEventos !== null && dadosEventos !== undefined && Object.keys(dadosEventos).length > 0) || (tipo !== undefined && tipo !== "") ? 
-                  (<><EventoDetalhes eventoDetalhes={dadosEventos} tipo={tipo} /></>) : 
-                  (<><div> Detalhe não disponível.</div></>)
-                }  
-            </div>
+            <TabContext value={value}>
+            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+              <TabList onChange={handleChange} aria-label="lab API tabs example">
+                <Tab label="Evento" value="1" />
+                <Tab label="Inscrições" value="2" />
+              </TabList>
+            </Box>
+            <TabPanel value="1">
+              <div className={classes.divPrincipal} >      
+                      { (dadosEventos !== null && dadosEventos !== undefined && Object.keys(dadosEventos).length > 0) || (tipo !== undefined && tipo !== "") ? 
+                        (<><EventoDetalhes eventoDetalhes={dadosEventos} tipo={tipo} /></>) : 
+                        (<><div> Detalhe não disponível.</div></>)
+                      }  
+                  </div>
+            </TabPanel>
+            <TabPanel value="2">Item Two</TabPanel>
+            <TabPanel value="3">Item Three</TabPanel>
+          </TabContext>
+            
         </Box>
       </Modal>
     </div>
