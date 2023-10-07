@@ -11,7 +11,7 @@ import ISessaoParametros from '../../shared/interfaces/ISessaoParametros'
 import IEventoDetalhesParam from '../../shared/interfaces/IEventoDetalhesParam'
 import useStyles from './styles';
 import EventoDetalhes from '../EventoDetalhes';
-import Close from '@mui/icons-material/Close';
+import InscricaoCard from '../InscricaoCard';
 
 const style = {
   marginTop:'50vh',
@@ -128,8 +128,9 @@ const BasicModal: React.ForwardRefRenderFunction<IModalHandles> = (props, ref) =
                       }  
                   </div>
             </TabPanel>
-            <TabPanel value="2">Item Two</TabPanel>
-            <TabPanel value="3">Item Three</TabPanel>
+            <TabPanel value="2">
+              <InscricaoCard eventoUid={(dadosEventos.uuid ? dadosEventos.uuid : "")}/>
+            </TabPanel>
           </TabContext>
             
         </Box>
