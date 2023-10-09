@@ -28,8 +28,9 @@ const InscricaoCard = (eventoUid?:IEventoProps) => {
   const inicioLoteRef = useRef<HTMLInputElement>(null);
   const fimLoteRef = useRef<HTMLInputElement>(null);
   const [valor,setValor] = useState(null);
+  const [firstTime, setFirstTime] = useState(true);
+  const [inscricoes, setInscricoes] = useState({});
   
-
   async function salvar(uuidEvento?:string){
     dispatch(setAlertCustom({ mensagens: [], title: '', open: false, type: 'info'}));
     setDisabled(true);
@@ -40,6 +41,7 @@ const InscricaoCard = (eventoUid?:IEventoProps) => {
           'Authorization': `Bearer ${session.access_token.access_token}`
       }}).then( (result:any) => {
           dispatch(setAlertCustom({ mensagens: ['Inscricao salva com sucesso!'], title: 'Sucesso', open: true, type: 'success'}));
+          buscarInscricoesEvento(eventoUid?.eventoUid);
           setDisabled(false);
       }).catch( (error:any) => {
         setDisabled(false);
@@ -72,6 +74,31 @@ const InscricaoCard = (eventoUid?:IEventoProps) => {
     return data;
   }
 
+  async function buscarInscricoesEvento(uuidEvento?:string)
+  {
+    setDisabled(true);
+    let inscricao = mountData();
+
+    return await api.get(`/inscricao/${uuidEvento}`,
+      { headers: {
+          'Authorization': `Bearer ${session.access_token.access_token}`
+      }}).then( (result:any) => {
+          setInscricoes(result.data.data)
+          setDisabled(false);
+      }).catch( (error:any) => {
+        setInscricoes({})
+        setDisabled(false);
+      }) 
+  }
+  useEffect(() => {
+    if(eventoUid !== undefined && eventoUid.eventoUid !== "" && firstTime){
+      buscarInscricoesEvento(eventoUid?.eventoUid);
+      setFirstTime(false);
+      
+    }
+
+  },[eventoUid]);
+  
   return (
     <div className={classes.divPrincipalLote}>
           <div style={{display:'flex', flexDirection: 'row', alignItems: 'center', justifyContent:'space-between', width: '100%', padding: 2}}>
@@ -123,7 +150,28 @@ const InscricaoCard = (eventoUid?:IEventoProps) => {
             >
               <SaveIcon/>
             </Button>
-            
+          </div>
+          <hr style={{margin: 15}}/>
+          <div style={{display:'flex', flexDirection: 'row', alignItems: 'center', justifyContent:'space-between', width: '100%', padding: 2, fontWeight: 1 }}>
+            {inscricoes !== null && inscricoes !== undefined && Object.keys(inscricoes).length > 0  ? 
+                (<div>
+                  { Object.values(inscricoes).map( (inscricao:any) => {
+                     return (
+                        <div> Lote: {inscricao[0]['lote']} - Período {inscricao[0]['data_inicio']} à {inscricao[0]['data_fim']}
+                        { Object.values(inscricao).map((item:any) => {
+                          return <div style={{ marginLeft: 10}}>
+                                    {item.lote} - {item.descricao} - R$ {item.valor}
+                                  </div>
+                        })}
+                        <hr />
+                        </div>
+                        
+                    )
+                  })
+                  }
+                </div>) : 
+                (<></>)
+            } 
           </div>
     </div>
     

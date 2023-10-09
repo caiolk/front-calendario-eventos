@@ -16,6 +16,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { DatePicker } from '@mui/x-date-pickers'
 import ptBR from 'dayjs/locale/pt-br';
 import moment from "moment";
+import { trim } from 'lodash';
 
 
 const Eventos = () => {
@@ -103,6 +104,8 @@ const Eventos = () => {
             params.push(`data_evento_fim=${_dataFim}`);
         }
         setBuscaParametros(params.join("&"))
+        buscaEventos(params.join("&"));
+        
         setDadosEventos([]);
     
     }
@@ -114,11 +117,10 @@ const Eventos = () => {
     }
 
     useEffect(() =>{
-  
-        if((session !== null && session.access_token.access_token !== undefined && session.access_token.access_token !== "") || buscaParametros !== ""){
-            
+
+        if((session !== null && session.access_token.access_token !== undefined && session.access_token.access_token !== "") && buscaParametros === ""){
             buscaEventos(buscaParametros);
-            setBuscaParametros("");
+            
         } 
     },[session,buscaParametros,firstTime])
 
