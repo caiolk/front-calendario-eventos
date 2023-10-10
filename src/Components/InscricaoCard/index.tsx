@@ -5,14 +5,12 @@ import { debounce } from "lodash"
 import api from '../../services/api';
 import ISessaoParametros from '../../shared/interfaces/ISessaoParametros'
 import NumberFormatCustom from '../../Components/NumberFormatCustom';
-import IEventoDetalhesParam from '../../shared/interfaces/IEventoDetalhesParam'
-import ITipoCorridas from '../../shared/interfaces/ITipoCorridas'
-import IFonteCorridas from '../../shared/interfaces/IFonteCorridas'
 import useStyles from './styles';
 import { setAlertCustom } from '../../store/actions/AlertCustom.action';
 import SaveIcon from '@mui/icons-material/Save';
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
+import EditIcon from '@mui/icons-material/Edit';
+import HighlightOffIcon from '@mui/icons-material/HighlightOff';
+import IconButton from '@mui/material/IconButton';
 
 interface IEventoProps{
   eventoUid: string
@@ -60,6 +58,24 @@ const InscricaoCard = (eventoUid?:IEventoProps) => {
     //     })
   }
   
+  async function deletar(uuidInscricao?:string){
+    dispatch(setAlertCustom({ mensagens: [], title: '', open: false, type: 'info'}));
+    setDisabled(true);
+
+    return await api.delete(`/inscricao/${uuidInscricao}`,
+      { headers: {
+          'Authorization': `Bearer ${session.access_token.access_token}`
+      }}).then( (result:any) => {
+          dispatch(setAlertCustom({ mensagens: ['Inscricao removida com sucesso!'], title: 'Sucesso', open: true, type: 'success'}));
+          buscarInscricoesEvento(eventoUid?.eventoUid);
+          setDisabled(false);
+      }).catch( (error:any) => {
+        setDisabled(false);
+        dispatch(setAlertCustom({ mensagens: ['Erro ao remover inscrição!'], title: 'Erro', open: true, type: 'error'}));
+      })  
+    
+  }
+
   function mountData(){
 
     let data = {
@@ -152,18 +168,29 @@ const InscricaoCard = (eventoUid?:IEventoProps) => {
             </Button>
           </div>
           <hr style={{margin: 15}}/>
-          <div style={{display:'flex', flexDirection: 'row', alignItems: 'center', justifyContent:'space-between', width: '100%', padding: 2, fontWeight: 1 }}>
+          <div style={{ display:'flex', flexDirection: 'row', alignItems: 'center', justifyContent:'space-between', width: '100%', padding: 2, fontWeight: 1, overflow: 'auto', height: '55vh' }}>
             {inscricoes !== null && inscricoes !== undefined && Object.keys(inscricoes).length > 0  ? 
-                (<div>
+                (<div style={{display:'flex', flexDirection: 'column', alignItems: 'center', justifyContent:'flex-start', width: '100%', padding: 2, fontWeight: 1, height: '100%' }}>
                   { Object.values(inscricoes).map( (inscricao:any) => {
                      return (
-                        <div> Lote: {inscricao[0]['lote']} - Período {inscricao[0]['data_inicio']} à {inscricao[0]['data_fim']}
+                        <div style={{ marginBottom:'10px',width: '90%', border: '0.2px #c6c6c6 solid', borderRadius: '5px 5px 5px 5px' }} > 
+                          <div style={{ fontSize: '18px', borderBottom: '0.2px #c6c6c6 solid', display:'flex', flexDirection: 'row', alignItems: 'center', justifyContent:'space-between', width: '100%', padding: 5, fontWeight: 1 }} >
+                            {inscricao[0]['lote']} - Período: {inscricao[0]['data_inicio']} à {inscricao[0]['data_fim']}
+                          </div>
                         { Object.values(inscricao).map((item:any) => {
-                          return <div style={{ marginLeft: 10}}>
-                                    {item.lote} - {item.descricao} - R$ {item.valor}
+                          return <div style={{ display:'flex', flexDirection: 'row', alignItems: 'center', justifyContent:'space-between', width: '100%', fontWeight: 1}}>
+                                     <div style={{ marginLeft: 12}}> {item.descricao} - R$ {item.valor} </div>
+                                     <div> 
+                                        <IconButton aria-label="delete" color="info">
+                                          <EditIcon fontSize="inherit" />
+                                        </IconButton>
+                                        <IconButton aria-label="delete" color="error" onClick={ () => deletar(item.uuid) }>
+                                          <HighlightOffIcon  fontSize="inherit"/>
+                                        </IconButton>
+                                      </div>
                                   </div>
                         })}
-                        <hr />
+                        
                         </div>
                         
                     )
