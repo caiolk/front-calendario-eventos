@@ -31,7 +31,7 @@ const Eventos = () => {
 
     const [evento,setEvento] = useState("");
     const [uf,setUF] = useState("");
-    const [status,setStatus] = useState("");
+    const [status,setStatus] = useState("Aberto");
     const [cidade,setCidade] = useState("");
     const [dataInicio,setDataInicio] = useState("");
     const [dataFim,setDataFim] = useState("");
@@ -48,6 +48,11 @@ const Eventos = () => {
 
     async function buscaEventos(buscaParametros:string){
         dispatch(setAlertCustom({ mensagens: [], title: '', open: false, type: 'info'}));
+        if(!buscaParametros)
+        {
+            buscaParametros = "status_string=Aberto"
+        }
+        
         return await api.get( `/eventos?${buscaParametros}`,
             { headers: {
                 'Authorization': `Bearer ${session.access_token.access_token}`

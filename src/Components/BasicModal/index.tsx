@@ -45,7 +45,7 @@ const BasicModal: React.ForwardRefRenderFunction<IModalHandles> = (props, ref) =
   const session = useSelector( (state:ISessaoParametros) => state.session );
   const [loading, setLoading] = useState(false);
   const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const handleClose = () => { setOpen(false); setValue("1") }
   
   const openModal = useCallback( (uuid?:string, tipoModal?:string) => {
         setDadosEventos({});
@@ -115,7 +115,7 @@ const BasicModal: React.ForwardRefRenderFunction<IModalHandles> = (props, ref) =
             </div>
             <TabContext value={value}>
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-              <TabList onChange={handleChange} aria-label="lab API tabs example">
+              <TabList onChange={handleChange} aria-label="Evento Inscrição detalhes" >
                 <Tab label="Evento" value="1" />
                 <Tab label="Inscrições" value="2" />
               </TabList>
