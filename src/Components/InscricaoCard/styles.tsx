@@ -58,49 +58,48 @@ const useStyles = makeStyles(() => ({
   resize: {
     fontSize: 10
 	},
-    btnSalvar:{
-      width:'50px',
+  btnSalvar:{
+    width:'50px',
+    height:'35px',
+  },
+  btnSalvarAtivo:{
+      width:'10px',
       height:'35px',
-
-    },
-    btnSalvarAtivo:{
-        width:'10px',
-        height:'35px',
-        background: '#04ccb9',
-        color:'#fff',
-        '&:hover': {
-          backgroundColor: '#07ebd5',
-          color: '#fff'
-        },
-        fontSize: '8px'
-    },
-    stparc: {
-      fontSize: '10px'
-    },
-    listaParcelas: { 
-      display:'flex', 
-      alignItems:'flex-end',
-      justifyContent:'space-around'
-    },
-    info:{
-      display:'flex', 
-      flexDirection: 'row', 
-      marginBottom: 10, 
-      justifyContent: 'space-around',
-      backgroundColor: 'rgb(28, 67, 99)',
-      borderRadius:'5px',
-      width: '96%',
-      padding: 5,
-      color: '#fff',
-      fontWeight: 'bold'
-    },
-    addIcon:{
-      width:'1px',
-      height:'30px',
+      background: '#04ccb9',
       color:'#fff',
-      fontSize: '12px'
-    },
-    
+      '&:hover': {
+        backgroundColor: '#07ebd5',
+        color: '#fff'
+      },
+      fontSize: '8px'
+  },
+
+  info:{
+    display:'flex', 
+    flexDirection: 'row', 
+    marginBottom: 10, 
+    justifyContent: 'space-around',
+    backgroundColor: 'rgb(28, 67, 99)',
+    borderRadius:'5px',
+    width: '96%',
+    padding: 5,
+    color: '#fff',
+    fontWeight: 'bold'
+  },
+  addIcon:{
+    width:'1px',
+    height:'30px',
+    color:'#fff',
+    fontSize: '12px'
+  },
+
+  btnSalvarDesabilitado:{
+    width:'40px',
+    height:'35px',
+    background:'#61b0a8',
+    borderColor:'#61b0a8',
+    color:'#fff',    
+  },
 }));
 
 export default useStyles;

@@ -9,6 +9,7 @@ import useStyles from './styles';
 import { setAlertCustom } from '../../store/actions/AlertCustom.action';
 import SaveIcon from '@mui/icons-material/Save';
 import EditIcon from '@mui/icons-material/Edit';
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import IconButton from '@mui/material/IconButton';
 import Dialog from '@mui/material/Dialog';
@@ -149,7 +150,14 @@ const InscricaoCard = (eventoUid?:IEventoProps) => {
     };
     return data;
   }
-
+  function resetar(){
+    setUuidInscricao("");
+    setNomeLote("");
+    setDescricao("");
+    setValor("");
+    setInicioLote("");
+    setFimLote("");
+  }
   async function buscarInscricoesEvento(uuidEvento?:string)
   {
     setDisabled(true);
@@ -288,7 +296,16 @@ const InscricaoCard = (eventoUid?:IEventoProps) => {
               inputRef={fimLoteRef}
             />
             <Button 
-              className={classes.addIcon}
+              className={  !uuidInscricao ?  classes.btnSalvarDesabilitado : classes.btnSalvar }
+              title='Resetar'
+              variant="contained" size="small" onClick={() => !uuidInscricao ? '' : resetar() } 
+              disabled={!uuidInscricao ? true : false}
+            >
+              <RestartAltIcon/>
+            </Button>
+            
+            <Button 
+              className={classes.btnSalvar}
               title='Salvar'
               style={{ background: '#04ccb9', color:'#fff' }}
               variant="contained" size="medium" onClick={() => !uuidInscricao ? salvar() : atualizar() } 
