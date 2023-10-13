@@ -321,8 +321,14 @@ const InscricaoCard = (eventoUid?:IEventoProps) => {
                   { Object.values(inscricoes).map( (inscricao:any) => {
                      return (
                         <div style={{ marginBottom:'10px',width: '90%', border: '0.2px #c6c6c6 solid', borderRadius: '5px 5px 5px 5px' }} > 
-                          <div style={{ fontSize: '18px', borderBottom: '0.2px #c6c6c6 solid', display:'flex', flexDirection: 'row', alignItems: 'center', justifyContent:'space-between', width: '100%', padding: 5, fontWeight: 1 }} >
-                            {inscricao[0]['lote']} - Período: {inscricao[0]['data_inicio']} à {inscricao[0]['data_fim']}
+                          <div style={{ fontSize: '18px', borderBottom: '0.2px #c6c6c6 solid', display:'flex', flexDirection: 'row', alignItems: 'center', width: '100%', padding: 5, fontWeight: 1 }} >
+
+                            <div style={{ fontSize: '18px', borderRight: '1px #c6c6c6 solid', backgroundColor:'#c6c6c6', borderRadius: '2px 2px 2px 2px', display:'flex', width: '20%', flexDirection: 'row', alignItems: 'center', justifyContent:'flex-start', padding: 5, fontWeight: 1 }}>
+                              {inscricao[0]['lote']}
+                            </div>
+                            <div style={{ display:'flex', flexDirection: 'row', alignItems: 'center', width: '100%', padding: 5, fontWeight: 1 }} >
+                              {inscricao[0]['data_inicio_formatada']} à {inscricao[0]['data_fim_formatada']}
+                            </div> 
                           </div>
                         { Object.values(inscricao).map((item:any) => {
                           return <div style={{ display:'flex', flexDirection: 'row', alignItems: 'center', justifyContent:'space-between', width: '100%', fontWeight: 1}}>
