@@ -123,7 +123,7 @@ const BasicModal: React.ForwardRefRenderFunction<IModalHandles> = (props, ref) =
             <TabPanel value="1">
               <div className={classes.divPrincipal} >      
                       { (dadosEventos !== null && dadosEventos !== undefined && Object.keys(dadosEventos).length > 0) || (tipo !== undefined && tipo !== "") ? 
-                        (<><EventoDetalhes eventoDetalhes={dadosEventos} tipo={tipo} /></>) : 
+                        (<><EventoDetalhes key={1} eventoDetalhes={dadosEventos} tipo={tipo} /></>) : 
                         (<><div> Detalhe não disponível.</div></>)
                       }  
                   </div>

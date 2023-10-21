@@ -41,6 +41,7 @@ const InscricaoCard = (eventoUid?:IEventoProps) => {
   const [uuidInscricao, setUuidInscricao] = useState("");
   const [uuidInscricaoDeletar, setUuidInscricaoDeletar] = useState("");
   const [loteNome, setNomeLote] = useState("");
+  const [loteUuid, setUuidLote] = useState("");
   const [descricao, setDescricao] = useState("");
   const [inicioLote, setInicioLote] = useState("");
   const [fimLote, setFimLote] = useState("");
@@ -72,6 +73,8 @@ const InscricaoCard = (eventoUid?:IEventoProps) => {
     let inscricao = {
       "uuid": uuidInscricao,
       "titulo": loteNome,
+      "lote_uuid": loteUuid,
+      "nome": loteNome,
       "lote": loteNome,
       "descricao": descricao,
       "eventos_uuid": eventoUid?.eventoUid,
@@ -87,6 +90,7 @@ const InscricaoCard = (eventoUid?:IEventoProps) => {
             dispatch(setAlertCustom({ mensagens: ['Inscricao atualizada com sucesso!'], title: 'Sucesso', open: true, type: 'success'}));
             setUuidInscricao("");
             setNomeLote("");
+            setUuidLote("");
             setDescricao("");
             setValor("");
             setInicioLote("");
@@ -106,12 +110,14 @@ const InscricaoCard = (eventoUid?:IEventoProps) => {
       Object.values(inscricoes).map((inscricao:any) => {
         inscricao.map( (item:any) => {
           if(item.uuid === uuidInscricao){
+            
               setUuidInscricao(item.uuid);
-              setNomeLote(item.lote);
+              setNomeLote(item.lote.nome);
+              setUuidLote(item.lote.uuid);
               setDescricao(item.descricao);
               setValor(item.valor);
-              setInicioLote(item.data_inicio);
-              setFimLote(item.data_fim);
+              setInicioLote(item.lote.data_inicio);
+              setFimLote(item.lote.data_fim);
 
           }
         })
@@ -139,20 +145,27 @@ const InscricaoCard = (eventoUid?:IEventoProps) => {
 
   function mountData(){
 
-    let data = {
+    let data:any = {
       "eventos_uuid": eventoUid?.eventoUid,
-      "titulo": loteRef.current?.value,
-      "lote": loteRef.current?.value,
+      "titulo": loteNome,
+      "lote_uuid": loteUuid,
+      "lote": loteNome,
+      "nome": loteNome,
       "descricao": descricaoRef.current?.value,
       "valor": valor,
       "data_inicio": inicioLoteRef.current?.value,
       "data_fim": fimLoteRef.current?.value,
     };
+    if(uuidInscricao !== "" && uuidInscricao !== undefined){
+      data.uuid = uuidInscricao;
+    }
+
     return data;
   }
   function resetar(){
     setUuidInscricao("");
     setNomeLote("");
+    setUuidLote("");
     setDescricao("");
     setValor("");
     setInicioLote("");
@@ -168,6 +181,7 @@ const InscricaoCard = (eventoUid?:IEventoProps) => {
           'Authorization': `Bearer ${session.access_token.access_token}`
       }}).then( (result:any) => {
           setInscricoes(result.data.data)
+          
           setDisabled(false);
       }).catch( (error:any) => {
         setInscricoes({})
@@ -308,7 +322,7 @@ const InscricaoCard = (eventoUid?:IEventoProps) => {
               className={classes.btnSalvar}
               title='Salvar'
               style={{ background: '#04ccb9', color:'#fff' }}
-              variant="contained" size="medium" onClick={() => !uuidInscricao ? salvar() : atualizar() } 
+              variant="contained" size="medium" onClick={() => salvar() } 
               disabled={false}
             >
               Salvar
@@ -318,16 +332,17 @@ const InscricaoCard = (eventoUid?:IEventoProps) => {
           <div style={{ display:'flex', flexDirection: 'row', alignItems: 'center', justifyContent:'space-between', width: '100%', padding: 2, fontWeight: 1, overflow: 'auto', height: '55vh' }}>
             {inscricoes !== null && inscricoes !== undefined && Object.keys(inscricoes).length > 0  ? 
                 (<div style={{display:'flex', flexDirection: 'column', alignItems: 'center', justifyContent:'flex-start', width: '100%', padding: 2, fontWeight: 1, height: '100%' }}>
+                  
                   { Object.values(inscricoes).map( (inscricao:any) => {
                      return (
                         <div style={{ marginBottom:'10px',width: '90%', border: '0.2px #c6c6c6 solid', borderRadius: '5px 5px 5px 5px' }} > 
                           <div style={{ fontSize: '18px', borderBottom: '0.2px #c6c6c6 solid', display:'flex', flexDirection: 'row', alignItems: 'center', width: '100%', padding: 5, fontWeight: 1 }} >
 
                             <div style={{ fontSize: '18px', borderRight: '1px #c6c6c6 solid', backgroundColor:'#c6c6c6', borderRadius: '2px 2px 2px 2px', display:'flex', width: '20%', flexDirection: 'row', alignItems: 'center', justifyContent:'flex-start', padding: 5, fontWeight: 1 }}>
-                              {inscricao[0]['lote']}
+                              {inscricao[0]['lote']['nome']}
                             </div>
                             <div style={{ display:'flex', flexDirection: 'row', alignItems: 'center', width: '100%', padding: 5, fontWeight: 1 }} >
-                              {inscricao[0]['data_inicio_formatada']} à {inscricao[0]['data_fim_formatada']}
+                              {inscricao[0]['lote']['data_inicio_formatada']} à {inscricao[0]['lote']['data_fim_formatada']}
                             </div> 
                           </div>
                         { Object.values(inscricao).map((item:any) => {
