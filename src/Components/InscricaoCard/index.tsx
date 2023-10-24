@@ -344,6 +344,12 @@ const InscricaoCard = (eventoUid?:IEventoProps) => {
                             <div style={{ display:'flex', flexDirection: 'row', alignItems: 'center', width: '100%', padding: 5, fontWeight: 1 }} >
                               {inscricao[0]['lote']['data_inicio_formatada']} à {inscricao[0]['lote']['data_fim_formatada']}
                             </div> 
+                            <div style={{ display:'flex', flexDirection: 'row'}} >
+                              <IconButton size='small' aria-label="delete" color="error" onClick={ () => { setOpen(true); setUuidInscricaoDeletar(inscricao[0]['lote']['uuid']); } }>
+                                <HighlightOffIcon  fontSize="inherit"/>
+                              </IconButton>
+                            </div> 
+                            
                           </div>
                         { Object.values(inscricao).map((item:any) => {
                           return <div style={{ display:'flex', flexDirection: 'row', alignItems: 'center', justifyContent:'space-between', width: '100%', fontWeight: 1}}>

@@ -29,6 +29,9 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
   const [uf,setUF] = useState("");
   const [status,setStatus] = useState("");
   const [cidade,setCidade] = useState("");
+  const [endereco,setEndereco] = useState("");
+  const [cep,setCep] = useState("");
+  const [coordenadas,setCoordenadas] = useState("");
   const [ativo,setAtivo] =  useState(false);
   const [dataEvento,setDataEvento] = useState("");
   const [urlPagina,setUrlPagina] = useState("");
@@ -36,8 +39,11 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
   const [organizador,setOrganizador] = useState<IOrganizadorDetalhesParam>({})
   const [firstTime,setFirstTime] = useState(true);
   const eventoTituloRef = useRef<HTMLInputElement>(null);
+  const enderecoRef = useRef<HTMLInputElement>(null);
   const cidadeRef = useRef<HTMLInputElement>(null);
   const ufRef = useRef<HTMLInputElement>(null);
+  const cepRef = useRef<HTMLInputElement>(null);
+  const coordenadasRef = useRef<HTMLInputElement>(null);
   const urlPaginaRef = useRef<HTMLInputElement>(null);
   const statusRef = useRef<HTMLInputElement>(null);
   const dataEventoRef = useRef<HTMLInputElement>(null);
@@ -62,6 +68,9 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
       setUF(String(eventoDetalhes.eventoDetalhes.uf))
       setStatus(String(eventoDetalhes.eventoDetalhes.status_string))
       setCidade(String(eventoDetalhes.eventoDetalhes.cidade))
+      setEndereco(String(eventoDetalhes.eventoDetalhes.endereco))
+      setCep(String(eventoDetalhes.eventoDetalhes.cep))
+      setCoordenadas(String(eventoDetalhes.eventoDetalhes.coordenadas))
       setDataEvento(String(eventoDetalhes.eventoDetalhes.evento_data_realizacao));
       setAtivo((eventoDetalhes.eventoDetalhes.ativo === 1 ? true : false));
       setOrganizador(eventoDetalhes.eventoDetalhes.organizador || {});
@@ -139,6 +148,9 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
       "organizador_uuid": organizador.uuid ?? null,
       "uf" : ufRef.current?.value,
       "cidade" : cidadeRef.current?.value,
+      "endereco" : enderecoRef.current?.value,
+      "cep" : cepRef.current?.value,
+      "coordenadas" : coordenadasRef.current?.value,
       "url_pagina": urlPaginaRef.current?.value,
       "evento_data_realizacao": dataEventoRef.current?.value,
       "status_string": statusRef.current?.value,
@@ -164,6 +176,38 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
         disabled={disabled}
       />
       <TextField 
+        id={`data_evento`} label="Realização" autoComplete={'false'} size={'small'} className={classes.divValor}
+        defaultValue={eventoDetalhes.eventoDetalhes.evento_data_realizacao} onChange={(event:any) => {}}
+        InputLabelProps={{ shrink: true }} inputProps={{ maxLength: 100 }} style={{ width: '15vw'}} 
+        inputRef={dataEventoRef} disabled={disabled} type='date'
+      />
+      <TextField
+        select id={`status`} label="Status" size={'small'}
+        InputLabelProps={{ shrink: true }} SelectProps={{ native: true }}
+        value={status} onChange={(event:any) => setStatus(event.value)} 
+        inputRef={statusRef} disabled={disabled}
+      >
+        { listaStatus !== undefined && listaStatus.length > 0 ? listaStatus.map( ( _status:any ) => { return (<><option value={_status}> {_status} </option></>) }) :'' }
+      </TextField>
+    </div>
+    <div className={classes.divRow} >
+      <TextField 
+          id={`url_pagina`} label="Link Inscrição" autoComplete={'false'} size={'small'} className={classes.divValor}
+          defaultValue={eventoDetalhes.eventoDetalhes.url_pagina} onChange={(event:any) => {}}
+          InputLabelProps={{ shrink: true }} inputProps={{ maxLength: 200 }} style={{ width: '100vw'}}
+          inputRef={urlPaginaRef} disabled={disabled}
+        />
+    </div>
+    <div className={classes.divRow} >
+      <TextField 
+          id={`endereco`} label="Endereço" autoComplete={'false'} size={'small'} className={classes.divValor}
+          defaultValue={eventoDetalhes.eventoDetalhes.endereco} onChange={(event:any) => {}}
+          InputLabelProps={{ shrink: true }} inputProps={{ maxLength: 200 }} style={{ width: '100vw'}}
+          inputRef={enderecoRef} disabled={disabled}
+        />
+    </div> 
+    <div className={classes.divRow} >
+    <TextField 
         select id={`uf`} label="UF" size={'small'} InputLabelProps={{ shrink: true }}
         SelectProps={{ native: true }} onChange={(event:any) => setUF(event.value) }  value={uf}
         inputRef={ufRef}
@@ -178,63 +222,53 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
         InputLabelProps={{ shrink: true }} inputProps={{ maxLength: 100 }}
         inputRef={cidadeRef} disabled={disabled}
       />
+      <TextField 
+        id={`cep`} label="Cep" autoComplete={'false'} size={'small'} className={classes.divValor}
+        defaultValue={eventoDetalhes.eventoDetalhes.cep} onChange={(event:any) => setCidade(event.value)}
+        InputLabelProps={{ shrink: true }} inputProps={{ maxLength: 10 }}
+        inputRef={cepRef} disabled={disabled}
+      />
+      <TextField 
+        id={`coordenadas`} label="Coordenadas" autoComplete={'false'} size={'small'} className={classes.divValor}
+        defaultValue={eventoDetalhes.eventoDetalhes.coordenadas} onChange={(event:any) => setCidade(event.value)}
+        InputLabelProps={{ shrink: true }} inputProps={{ maxLength: 100 }}
+        inputRef={coordenadasRef} disabled={disabled}
+      />
     </div>
     <div className={classes.divRow} >
-      <TextField 
-          id={`url_pagina`} label="Link Inscrição" autoComplete={'false'} size={'small'} className={classes.divValor}
-          defaultValue={eventoDetalhes.eventoDetalhes.url_pagina} onChange={(event:any) => {}}
-          InputLabelProps={{ shrink: true }} inputProps={{ maxLength: 200 }} style={{ width: '100vw'}}
-          inputRef={urlPaginaRef} disabled={disabled}
+      <Autocomplete
+          id="organizador"
+          size={'small'} sx={{ width: 510 }}
+          open={open}
+          onOpen={() =>  { setOpen(true); }}
+          onClose={() => { setOpen(false); }}
+          defaultValue={eventoDetalhes.eventoDetalhes.organizador}
+          isOptionEqualToValue={(option:any, value:any) => option.nome_fantasia === value.nome_fantasia }
+          getOptionLabel={(option:any) => option.nome_fantasia}
+          options={dados}
+          onChange={(event, novoOrganizador:any) => { setOrganizador(novoOrganizador); }}  
+          disabled={disabled}
+          loading={loadingInput}
+          renderInput={(params) => (
+            <TextField
+              required
+              {...params}
+              label="Organizador"
+              inputRef={organizadorRef}
+              onChange={(event:any) => { setBusca(event.value); setFirstTime(false); }}
+              InputProps={{
+                ...params.InputProps,
+                endAdornment: (
+                  <>
+                    {loadingInput ? <CircularProgress color="inherit" size={20} /> : null}
+                    {params.InputProps.endAdornment}
+                  </>
+                ),
+              }}
+          />
+        )}
         />
-    </div> 
-    <div className={classes.divRow} >
-    <Autocomplete
-        id="organizador"
-        size={'small'} sx={{ width: 510 }}
-        open={open}
-        onOpen={() =>  { setOpen(true); }}
-        onClose={() => { setOpen(false); }}
-        defaultValue={eventoDetalhes.eventoDetalhes.organizador}
-        isOptionEqualToValue={(option:any, value:any) => option.nome_fantasia === value.nome_fantasia }
-        getOptionLabel={(option:any) => option.nome_fantasia}
-        options={dados}
-        onChange={(event, novoOrganizador:any) => { setOrganizador(novoOrganizador); }}  
-        disabled={disabled}
-        loading={loadingInput}
-        renderInput={(params) => (
-          <TextField
-            required
-            {...params}
-            label="Organizador"
-            inputRef={organizadorRef}
-            onChange={(event:any) => { setBusca(event.value); setFirstTime(false); }}
-            InputProps={{
-              ...params.InputProps,
-              endAdornment: (
-                <>
-                  {loadingInput ? <CircularProgress color="inherit" size={20} /> : null}
-                  {params.InputProps.endAdornment}
-                </>
-              ),
-            }}
-        />
-      )}
-      />
-      <TextField 
-        id={`data_evento`} label="Realização" autoComplete={'false'} size={'small'} className={classes.divValor}
-        defaultValue={eventoDetalhes.eventoDetalhes.evento_data_realizacao} onChange={(event:any) => {}}
-        InputLabelProps={{ shrink: true }} inputProps={{ maxLength: 100 }} style={{ width: '15vw'}} 
-        inputRef={dataEventoRef} disabled={disabled} type='date'
-      />
-      <TextField
-        select id={`status`} label="Status" size={'small'}
-        InputLabelProps={{ shrink: true }} SelectProps={{ native: true }}
-        value={status} onChange={(event:any) => setStatus(event.value)} 
-        inputRef={statusRef} disabled={disabled}
-      >
-        { listaStatus !== undefined && listaStatus.length > 0 ? listaStatus.map( ( _status:any ) => { return (<><option value={_status}> {_status} </option></>) }) :'' }
-      </TextField>
-      <Switch color="primary"  size="medium"  checked={ativo} disabled={disabled} onChange={(event:any) => setAtivo(event.target.checked)} inputRef={ativoRef} />
+        <Switch color="primary"  size="medium"  checked={ativo} disabled={disabled} onChange={(event:any) => setAtivo(event.target.checked)} inputRef={ativoRef} />
     </div>
     <div className={classes.divRowEnd} >
       <TextField
@@ -261,16 +295,26 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
         {disabled ? (<><CircularProgress size={30} /></>) : (<></>)}
       </div>
       <div>
-      <Button 
-        className={classes.buttonBuscar}
-        style={{ background: (disabled ? '#c1c1c1' : '#04ccb9' ), color:'#fff' }}
-        variant="contained" size="small" onClick={() => salvarEvento(String(eventoDetalhes.eventoDetalhes.uuid))} 
-        disabled={disabled}
-      >
-         Salvar
-      </Button>
+        <Button 
+          className={classes.buttonBuscar}
+          style={{ background: (disabled ? '#c1c1c1' : '#04ccb9' ), color:'#fff' }}
+          variant="contained" size="small" onClick={() => salvarEvento(String(eventoDetalhes.eventoDetalhes.uuid))} 
+          disabled={disabled}
+        >
+          Salvar
+        </Button>
       </div>
     </div>
+    <div>
+        <Button 
+          className={classes.buttonBuscar}
+          style={{ background: (disabled ? '#c1c1c1' : '#04ccb9' ), color:'#fff' }}
+          variant="contained" size="small" onClick={() => {} } 
+          disabled={disabled}
+        >
+          Divulgar Evento
+        </Button>
+      </div>
     </div>
   );
 }
