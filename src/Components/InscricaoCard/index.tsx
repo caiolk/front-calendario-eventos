@@ -40,6 +40,7 @@ const InscricaoCard = (eventoUid?:IEventoProps) => {
   const [lotes, setLotes] = useState([]);
   const [uuidInscricao, setUuidInscricao] = useState("");
   const [uuidInscricaoDeletar, setUuidInscricaoDeletar] = useState("");
+  const [tipoDeletar, setTipoDeletar] = useState("");
   const [loteNome, setNomeLote] = useState("");
   const [loteUuid, setUuidLote] = useState("");
   const [descricao, setDescricao] = useState("");
@@ -125,20 +126,22 @@ const InscricaoCard = (eventoUid?:IEventoProps) => {
     }
   }
 
-  async function deletar(uuidInscricao?:string){
+  async function deletar(uuid?:string){
     dispatch(setAlertCustom({ mensagens: [], title: '', open: false, type: 'info'}));
     setDisabled(true);
+    
+    let url = tipoDeletar === 'Lote' ? `/inscricao/${uuid}/lote` :  `/inscricao/${uuid}`;
 
-    return await api.delete(`/inscricao/${uuidInscricao}`,
+    return await api.delete(url,
       { headers: {
           'Authorization': `Bearer ${session.access_token.access_token}`
       }}).then( (result:any) => {
-          dispatch(setAlertCustom({ mensagens: ['Inscricao removida com sucesso!'], title: 'Sucesso', open: true, type: 'success'}));
+          dispatch(setAlertCustom({ mensagens: [`${tipoDeletar} deletado com sucesso!`], title: 'Sucesso', open: true, type: 'success'}));
           buscarInscricoesEvento(eventoUid?.eventoUid);
           setDisabled(false);
       }).catch( (error:any) => {
         setDisabled(false);
-        dispatch(setAlertCustom({ mensagens: ['Erro ao remover inscrição!'], title: 'Erro', open: true, type: 'error'}));
+        dispatch(setAlertCustom({ mensagens: [`Erro ao remover ${tipoDeletar}!`], title: 'Erro', open: true, type: 'error'}));
       })  
     
   }
@@ -345,7 +348,11 @@ const InscricaoCard = (eventoUid?:IEventoProps) => {
                               {inscricao[0]['lote']['data_inicio_formatada']} à {inscricao[0]['lote']['data_fim_formatada']}
                             </div> 
                             <div style={{ display:'flex', flexDirection: 'row'}} >
-                              <IconButton size='small' aria-label="delete" color="error" onClick={ () => { setOpen(true); setUuidInscricaoDeletar(inscricao[0]['lote']['uuid']); } }>
+                              <IconButton size='small' aria-label="delete" color="error" onClick={ () => { 
+                                  setOpen(true); 
+                                  setUuidInscricaoDeletar(inscricao[0]['lote']['uuid']); 
+                                  setTipoDeletar('Lote');
+                                  } }>
                                 <HighlightOffIcon  fontSize="inherit"/>
                               </IconButton>
                             </div> 
@@ -358,7 +365,7 @@ const InscricaoCard = (eventoUid?:IEventoProps) => {
                                         <IconButton aria-label="delete" color="info" onClick={ () => editar(item.uuid) }>
                                           <EditIcon fontSize="inherit"  />
                                         </IconButton>
-                                        <IconButton aria-label="delete" color="error" onClick={ () => { setOpen(true); setUuidInscricaoDeletar(item.uuid); } }>
+                                        <IconButton aria-label="delete" color="error" onClick={ () => { setOpen(true); setUuidInscricaoDeletar(item.uuid); setTipoDeletar('Inscrição'); } }>
                                           <HighlightOffIcon  fontSize="inherit"/>
                                         </IconButton>
                                       </div>
@@ -383,11 +390,11 @@ const InscricaoCard = (eventoUid?:IEventoProps) => {
               aria-describedby="alert-dialog-description"
             >
               <DialogTitle id="alert-dialog-title">
-                {"Exclusão de inscrição?"}
+                {`Exclusão de ${tipoDeletar}?`}
               </DialogTitle>
               <DialogContent>
                 <DialogContentText id="alert-dialog-description">
-                  Deseja mesmo excluir a inscrição?
+                  {`Deseja mesmo excluir? (${tipoDeletar})`}
                 </DialogContentText>
               </DialogContent>
               <DialogActions>
