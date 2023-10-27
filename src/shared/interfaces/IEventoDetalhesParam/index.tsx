@@ -12,6 +12,7 @@ export default interface IEventoDetalhesParam{
     status_string?: string,
     inscricao_aberta?: number,
     ativo?: number,
+    divulgar?: boolean,
     created_at?: string,
     organizador?: {
         uuid: string,

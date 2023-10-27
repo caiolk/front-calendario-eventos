@@ -4,6 +4,7 @@ import { TextField, Button, CircularProgress, Switch, Autocomplete } from '@mui/
 import { debounce } from "lodash"
 import api from '../../services/api';
 import ISessaoParametros from '../../shared/interfaces/ISessaoParametros'
+import IDivulgarParametros from '../../shared/interfaces/IDivulgarParametros';
 import NumberFormatCustom from '../../Components/NumberFormatCustom';
 import useStyles from './styles';
 import { setAlertCustom } from '../../store/actions/AlertCustom.action';
@@ -27,6 +28,7 @@ interface IEventoProps{
 const InscricaoCard = (eventoUid?:IEventoProps) => {
   const classes = useStyles();
   const session = useSelector( (state:ISessaoParametros) => state.session );
+  const statusEventoDivulgar = useSelector( (state:IDivulgarParametros) => state.divulgarEvento );
   const dispatch = useDispatch();
   const [disabled,setDisabled] = useState(false);
   const loteRef = useRef<HTMLInputElement>(null);
@@ -47,8 +49,6 @@ const InscricaoCard = (eventoUid?:IEventoProps) => {
   const [inicioLote, setInicioLote] = useState("");
   const [fimLote, setFimLote] = useState("");
   const [loadingInput, setLoadingInput] = useState(false);
-  
-
 
   async function salvar(uuidEvento?:string){
     dispatch(setAlertCustom({ mensagens: [], title: '', open: false, type: 'info'}));
@@ -219,6 +219,11 @@ const InscricaoCard = (eventoUid?:IEventoProps) => {
     }
 
   },[eventoUid]);
+  
+  useEffect(() =>{
+    setDisabled(statusEventoDivulgar);
+  },[buscaLotes])
+
   const handleClickOpen = () => {
     setOpen(true);
   };
@@ -243,7 +248,7 @@ const InscricaoCard = (eventoUid?:IEventoProps) => {
               id={`lote`} label="Lote" autoComplete={'false'} size={'small'} className={classes.divValor}
               value={loteNome} onChange={(event:any) => setNomeLote(event.target.value) }
               InputLabelProps={{ shrink: true }} inputProps={{ maxLength: 10 }} style={{ width: '15vw'}}
-              disabled={false}
+              disabled={disabled}
               inputRef={loteRef}
             />
 
@@ -284,7 +289,7 @@ const InscricaoCard = (eventoUid?:IEventoProps) => {
             id={`descricao`} label="Descricao" autoComplete={'false'} size={'small'} className={classes.divValor}
             value={descricao} onChange={(event:any) => setDescricao(event.target.value) }
             InputLabelProps={{ shrink: true }} inputProps={{ maxLength: 100 }} style={{ width: '20vw'}}
-            disabled={false}
+            disabled={disabled}
             inputRef={descricaoRef}
           />
           <TextField 
@@ -295,21 +300,21 @@ const InscricaoCard = (eventoUid?:IEventoProps) => {
               inputComponent: NumberFormatCustom,
               inputProps: { decimalScale: 2, maxLength: 10 , style: { textAlign: 'right'} }
           }}
-            disabled={false} 
+            disabled={disabled} 
           />
           
             <TextField 
               id={`inicio_lote`} label="Inicio" autoComplete={'false'} size={'small'} className={classes.divValor}
               defaultValue={""} value={inicioLote} onChange={(event:any) => setInicioLote(event.target.value)}
               InputLabelProps={{ shrink: true }} inputProps={{ maxLength: 100 }} style={{ width: '12vw'}} 
-              disabled={false} type='date'
+              disabled={disabled} type='date'
               inputRef={inicioLoteRef}
             />
             <TextField 
               id={`fim_lote`} label="Fim" autoComplete={'false'} size={'small'} className={classes.divValor}
               defaultValue={""} value={fimLote} onChange={(event:any) => setFimLote(event.target.value)}
               InputLabelProps={{ shrink: true }} inputProps={{ maxLength: 100 }} style={{ width: '12vw'}} 
-              disabled={false} type='date'
+              disabled={disabled} type='date'
               inputRef={fimLoteRef}
             />
             <Button 
@@ -322,16 +327,26 @@ const InscricaoCard = (eventoUid?:IEventoProps) => {
             </Button>
             
             <Button 
-              className={classes.btnSalvar}
+              className={ statusEventoDivulgar ? classes.btnSalvarDesabilitado : classes.btnSalvar}
               title='Salvar'
               style={{ background: '#04ccb9', color:'#fff' }}
               variant="contained" size="medium" onClick={() => salvar() } 
-              disabled={false}
+              disabled={disabled}
             >
               Salvar
             </Button>
           </div>
           <hr style={{margin: 15}}/>
+          <div style={{ display:'flex', flexDirection: 'column', alignItems: 'center', justifyContent:'flex-end', width: '100%', height: '100%', padding: 2, fontWeight: 1 }} >
+          {statusEventoDivulgar ?
+            (<>
+              <div style={{ display:'flex', height:'3vh', borderColor: '#000 solid 2px' ,flexDirection: 'column', alignItems: 'center', justifyContent:'center', backgroundColor:'#fdeded', color: "rgb(95, 33, 32)", width: '85%' , }} >
+                Para editar os lotes, cancele a divulgação do evento.
+              </div>
+            </>) : (<></>)  
+          }
+          
+        </div>
           <div style={{ display:'flex', flexDirection: 'row', alignItems: 'center', justifyContent:'space-between', width: '100%', padding: 2, fontWeight: 1, overflow: 'auto', height: '55vh' }}>
             {inscricoes !== null && inscricoes !== undefined && Object.keys(inscricoes).length > 0  ? 
                 (<div style={{display:'flex', flexDirection: 'column', alignItems: 'center', justifyContent:'flex-start', width: '100%', padding: 2, fontWeight: 1, height: '100%' }}>
@@ -352,7 +367,9 @@ const InscricaoCard = (eventoUid?:IEventoProps) => {
                                   setOpen(true); 
                                   setUuidInscricaoDeletar(inscricao[0]['lote']['uuid']); 
                                   setTipoDeletar('Lote');
-                                  } }>
+                                  } }
+                                  disabled={disabled}
+                                  >
                                 <HighlightOffIcon  fontSize="inherit"/>
                               </IconButton>
                             </div> 
@@ -362,10 +379,10 @@ const InscricaoCard = (eventoUid?:IEventoProps) => {
                           return <div style={{ display:'flex', flexDirection: 'row', alignItems: 'center', justifyContent:'space-between', width: '100%', fontWeight: 1}}>
                                      <div style={{ marginLeft: 12}}> {item.descricao} - R$ {item.valor} </div>
                                      <div> 
-                                        <IconButton aria-label="delete" color="info" onClick={ () => editar(item.uuid) }>
+                                        <IconButton aria-label="delete" color="info" onClick={ () => editar(item.uuid) } disabled={disabled} >
                                           <EditIcon fontSize="inherit"  />
                                         </IconButton>
-                                        <IconButton aria-label="delete" color="error" onClick={ () => { setOpen(true); setUuidInscricaoDeletar(item.uuid); setTipoDeletar('Inscrição'); } }>
+                                        <IconButton aria-label="delete" color="error" onClick={ () => { setOpen(true); setUuidInscricaoDeletar(item.uuid); setTipoDeletar('Inscrição'); } } disabled={disabled}>
                                           <HighlightOffIcon  fontSize="inherit"/>
                                         </IconButton>
                                       </div>

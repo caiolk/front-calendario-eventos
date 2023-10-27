@@ -7,6 +7,7 @@ import tipoCorridas from './TipoCorridas';
 import fonteCorridas from './FonteCorridas';
 import estados from './Estados';
 import status from './Status';
+import divulgarEvento from './DivulgarEvento';
 
 export default combineReducers({
     session,
@@ -15,5 +16,6 @@ export default combineReducers({
     tipoCorridas,
     fonteCorridas,
     estados,
-    status
+    status,
+    divulgarEvento
 })

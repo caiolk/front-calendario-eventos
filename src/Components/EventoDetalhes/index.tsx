@@ -9,6 +9,8 @@ import ITipoCorridas from '../../shared/interfaces/ITipoCorridas'
 import IFonteCorridas from '../../shared/interfaces/IFonteCorridas'
 import useStyles from './styles';
 import { setAlertCustom } from '../../store/actions/AlertCustom.action';
+import { setDivulgarEvento } from '../../store/actions/DivulgarEvento.action';
+import IDivulgarParametros from '../../shared/interfaces/IDivulgarParametros';
 
 interface IDetalhesParam{
   eventoDetalhes: IEventoDetalhesParam,
@@ -24,6 +26,7 @@ interface IOrganizadorDetalhesParam{
 const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
   const classes = useStyles();
   const session = useSelector( (state:ISessaoParametros) => state.session );
+  const statusEventoDivulgar = useSelector( (state:IDivulgarParametros) => state.divulgarEvento );
   const dispatch = useDispatch();
   const [eventoTitulo,setEventoTitulo] = useState("");
   const [uf,setUF] = useState("");
@@ -58,6 +61,7 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
   const [tipoModal, setTipoModal] = useState("");
   const [fonte, setFonte] = useState("");
   const [tipoCorrida, setTipoCorrida] = useState("");
+  const [divulgar, setDivulgar] = useState(false);
   const listaTipoCorridas = useSelector( (state:ITipoCorridas) => state.tipoCorridas );
   const listaFontes = useSelector( (state:IFonteCorridas) => state.fonteCorridas );
   const listaStatus = useSelector( (state:any) => state.status );
@@ -76,6 +80,8 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
       setOrganizador(eventoDetalhes.eventoDetalhes.organizador || {});
       setFonte(eventoDetalhes.eventoDetalhes.fonte?.uuid || "")
       setTipoCorrida(eventoDetalhes.eventoDetalhes.tipo?.uuid || "")
+      setDivulgar(Boolean(statusEventoDivulgar))
+      dispatch(setDivulgarEvento(Boolean(statusEventoDivulgar)));
     }
     if(eventoDetalhes.tipo !== undefined && eventoDetalhes.tipo !== ""){
       setTipoModal(eventoDetalhes.tipo)
@@ -83,6 +89,11 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
     }
   },[eventoDetalhes, tipo]);
 
+  useEffect(() =>{
+    setDisabled(statusEventoDivulgar);
+  })
+
+  
   async function salvarEvento(uuidEvento?:string){
     dispatch(setAlertCustom({ mensagens: [], title: '', open: false, type: 'info'}));
     setDisabled(true);
@@ -111,6 +122,21 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
           dispatch(setAlertCustom({ mensagens: ['Erro ao salvar!'], title: 'Erro', open: true, type: 'error'}));
         })
   }
+
+  async function dilvugarEvento(uuidEvento?:string, divulgarEvento?: any){
+
+    return await api.patch(`/eventos/${uuidEvento}`, { "divulgar" : divulgarEvento },
+    { headers: {
+        'Authorization': `Bearer ${session.access_token.access_token}`
+    }}).then( (result:any) => {
+        dispatch(setAlertCustom({ mensagens: ['Evento atualizado com sucesso!'], title: 'Sucesso', open: true, type: 'success'}));
+        setDivulgar(divulgarEvento);
+        dispatch(setDivulgarEvento(divulgarEvento));
+    }).catch( (error:any) => {
+      dispatch(setAlertCustom({ mensagens: ['Erro ao atualizar!'], title: 'Erro', open: true, type: 'error'}));
+    })
+  }
+
   useEffect(() => {
       if(!firstTime){
         const delayDebounceFn = setTimeout(() => {
@@ -166,154 +192,155 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
   }
 
   return (
-    <div style={{width : '100%'}}>
-    <div className={classes.divRow} >
-      <TextField 
-        id={`evento_titulo`} label="Título Evento" autoComplete={'false'} size={'small'} className={classes.divValor}
-        defaultValue={eventoDetalhes.eventoDetalhes.evento_titulo} onChange={(event:any) => setEventoTitulo(event.value) }
-        InputLabelProps={{ shrink: true }} inputProps={{ maxLength: 100 }} style={{ width: '45vw'}}
-        inputRef={eventoTituloRef}
-        disabled={disabled}
-      />
-      <TextField 
-        id={`data_evento`} label="Realização" autoComplete={'false'} size={'small'} className={classes.divValor}
-        defaultValue={eventoDetalhes.eventoDetalhes.evento_data_realizacao} onChange={(event:any) => {}}
-        InputLabelProps={{ shrink: true }} inputProps={{ maxLength: 100 }} style={{ width: '15vw'}} 
-        inputRef={dataEventoRef} disabled={disabled} type='date'
-      />
-      <TextField
-        select id={`status`} label="Status" size={'small'}
-        InputLabelProps={{ shrink: true }} SelectProps={{ native: true }}
-        value={status} onChange={(event:any) => setStatus(event.value)} 
-        inputRef={statusRef} disabled={disabled}
-      >
-        { listaStatus !== undefined && listaStatus.length > 0 ? listaStatus.map( ( _status:any ) => { return (<><option value={_status}> {_status} </option></>) }) :'' }
-      </TextField>
-    </div>
-    <div className={classes.divRow} >
-      <TextField 
-          id={`url_pagina`} label="Link Inscrição" autoComplete={'false'} size={'small'} className={classes.divValor}
-          defaultValue={eventoDetalhes.eventoDetalhes.url_pagina} onChange={(event:any) => {}}
-          InputLabelProps={{ shrink: true }} inputProps={{ maxLength: 200 }} style={{ width: '100vw'}}
-          inputRef={urlPaginaRef} disabled={disabled}
-        />
-    </div>
-    <div className={classes.divRow} >
-      <TextField 
-          id={`endereco`} label="Endereço" autoComplete={'false'} size={'small'} className={classes.divValor}
-          defaultValue={eventoDetalhes.eventoDetalhes.endereco} onChange={(event:any) => {}}
-          InputLabelProps={{ shrink: true }} inputProps={{ maxLength: 200 }} style={{ width: '100vw'}}
-          inputRef={enderecoRef} disabled={disabled}
-        />
-    </div> 
-    <div className={classes.divRow} >
-    <TextField 
-        select id={`uf`} label="UF" size={'small'} InputLabelProps={{ shrink: true }}
-        SelectProps={{ native: true }} onChange={(event:any) => setUF(event.value) }  value={uf}
-        inputRef={ufRef}
-        disabled={disabled}
-      >
-        <option value={'-'} > -  </option>
-        { listaEstados !== undefined && listaEstados.length > 0 ? listaEstados.map( ( uf:any ) => { return (<><option value={uf}> {uf} </option></>) }) :'' }
-      </TextField>
-      <TextField 
-        id={`cidade`} label="Cidade" autoComplete={'false'} size={'small'} className={classes.divValor}
-        defaultValue={eventoDetalhes.eventoDetalhes.cidade} onChange={(event:any) => setCidade(event.value)}
-        InputLabelProps={{ shrink: true }} inputProps={{ maxLength: 100 }}
-        inputRef={cidadeRef} disabled={disabled}
-      />
-      <TextField 
-        id={`cep`} label="Cep" autoComplete={'false'} size={'small'} className={classes.divValor}
-        defaultValue={eventoDetalhes.eventoDetalhes.cep} onChange={(event:any) => setCidade(event.value)}
-        InputLabelProps={{ shrink: true }} inputProps={{ maxLength: 10 }}
-        inputRef={cepRef} disabled={disabled}
-      />
-      <TextField 
-        id={`coordenadas`} label="Coordenadas" autoComplete={'false'} size={'small'} className={classes.divValor}
-        defaultValue={eventoDetalhes.eventoDetalhes.coordenadas} onChange={(event:any) => setCidade(event.value)}
-        InputLabelProps={{ shrink: true }} inputProps={{ maxLength: 100 }}
-        inputRef={coordenadasRef} disabled={disabled}
-      />
-    </div>
-    <div className={classes.divRow} >
-      <Autocomplete
-          id="organizador"
-          size={'small'} sx={{ width: 510 }}
-          open={open}
-          onOpen={() =>  { setOpen(true); }}
-          onClose={() => { setOpen(false); }}
-          defaultValue={eventoDetalhes.eventoDetalhes.organizador}
-          isOptionEqualToValue={(option:any, value:any) => option.nome_fantasia === value.nome_fantasia }
-          getOptionLabel={(option:any) => option.nome_fantasia}
-          options={dados}
-          onChange={(event, novoOrganizador:any) => { setOrganizador(novoOrganizador); }}  
+    <div style={{width : '100%', height: '67vh', display:'flex', flexDirection: 'column'}}>
+      <div className={classes.divRow} >
+        <TextField 
+          id={`evento_titulo`} label="Título Evento" autoComplete={'false'} size={'small'} className={classes.divValor}
+          defaultValue={eventoDetalhes.eventoDetalhes.evento_titulo} onChange={(event:any) => setEventoTitulo(event.value) }
+          InputLabelProps={{ shrink: true }} inputProps={{ maxLength: 100 }} style={{ width: '45vw'}}
+          inputRef={eventoTituloRef}
           disabled={disabled}
-          loading={loadingInput}
-          renderInput={(params) => (
-            <TextField
-              required
-              {...params}
-              label="Organizador"
-              inputRef={organizadorRef}
-              onChange={(event:any) => { setBusca(event.value); setFirstTime(false); }}
-              InputProps={{
-                ...params.InputProps,
-                endAdornment: (
-                  <>
-                    {loadingInput ? <CircularProgress color="inherit" size={20} /> : null}
-                    {params.InputProps.endAdornment}
-                  </>
-                ),
-              }}
-          />
-        )}
         />
-        <Switch color="primary"  size="medium"  checked={ativo} disabled={disabled} onChange={(event:any) => setAtivo(event.target.checked)} inputRef={ativoRef} />
-    </div>
-    <div className={classes.divRowEnd} >
-      <TextField
-          select id={`tipoCorrida`} label="Tipo Corrida" size={'small'}
+        <TextField 
+          id={`data_evento`} label="Realização" autoComplete={'false'} size={'small'} className={classes.divValor}
+          defaultValue={eventoDetalhes.eventoDetalhes.evento_data_realizacao} onChange={(event:any) => {}}
+          InputLabelProps={{ shrink: true }} inputProps={{ maxLength: 100 }} style={{ width: '15vw'}} 
+          inputRef={dataEventoRef} disabled={disabled} type='date'
+        />
+        <TextField
+          select id={`status`} label="Status" size={'small'}
           InputLabelProps={{ shrink: true }} SelectProps={{ native: true }}
-          value={tipoCorrida} onChange={(event:any) => setTipoCorrida(event.value) } 
-          inputRef={tipoCorridaRef} disabled={disabled}
+          value={status} onChange={(event:any) => setStatus(event.value)} 
+          inputRef={statusRef} disabled={disabled}
         >
-        <option value={''}> - </option>
-        { listaTipoCorridas !== undefined && listaTipoCorridas.length > 0 ? listaTipoCorridas.map( ( tipoCorrida:any ) => { return (<><option value={tipoCorrida.uuid}> {tipoCorrida.nome} </option></>) }) :'' }
-      </TextField>
-      <TextField
-        select id={`fonte`} label="Fonte" size={'small'}
-        InputLabelProps={{ shrink: true }} SelectProps={{ native: true }}
-        value={fonte} onChange={(event:any) => setFonte(event.value)} 
-        inputRef={fonteRef} disabled={disabled}
-      >
-        <option value={''}> - </option>
-        { listaFontes !== undefined && listaFontes.length > 0 ? listaFontes.map( ( fonte:any ) => { return (<><option value={fonte.uuid}> {fonte.nome} </option></>) }) :'' }
-      </TextField>
-    </div>
-    <div className={classes.divRowEnd} >
-      <div style={{marginRight: '10px'}}>
-        {disabled ? (<><CircularProgress size={30} /></>) : (<></>)}
+          { listaStatus !== undefined && listaStatus.length > 0 ? listaStatus.map( ( _status:any ) => { return (<><option value={_status}> {_status} </option></>) }) :'' }
+        </TextField>
       </div>
-      <div>
-        <Button 
-          className={classes.buttonBuscar}
-          style={{ background: (disabled ? '#c1c1c1' : '#04ccb9' ), color:'#fff' }}
-          variant="contained" size="small" onClick={() => salvarEvento(String(eventoDetalhes.eventoDetalhes.uuid))} 
+      <div className={classes.divRow} >
+        <TextField 
+            id={`url_pagina`} label="Link Inscrição" autoComplete={'false'} size={'small'} className={classes.divValor}
+            defaultValue={eventoDetalhes.eventoDetalhes.url_pagina} onChange={(event:any) => {}}
+            InputLabelProps={{ shrink: true }} inputProps={{ maxLength: 200 }} style={{ width: '100vw'}}
+            inputRef={urlPaginaRef} disabled={disabled}
+          />
+      </div>
+      <div className={classes.divRow} >
+        <TextField 
+            id={`endereco`} label="Endereço" autoComplete={'false'} size={'small'} className={classes.divValor}
+            defaultValue={eventoDetalhes.eventoDetalhes.endereco} onChange={(event:any) => {}}
+            InputLabelProps={{ shrink: true }} inputProps={{ maxLength: 200 }} style={{ width: '100vw'}}
+            inputRef={enderecoRef} disabled={disabled}
+          />
+      </div> 
+      <div className={classes.divRow} >
+      <TextField 
+          select id={`uf`} label="UF" size={'small'} InputLabelProps={{ shrink: true }}
+          SelectProps={{ native: true }} onChange={(event:any) => setUF(event.value) }  value={uf}
+          inputRef={ufRef}
           disabled={disabled}
         >
-          Salvar
-        </Button>
+          <option value={'-'} > -  </option>
+          { listaEstados !== undefined && listaEstados.length > 0 ? listaEstados.map( ( uf:any ) => { return (<><option value={uf}> {uf} </option></>) }) :'' }
+        </TextField>
+        <TextField 
+          id={`cidade`} label="Cidade" autoComplete={'false'} size={'small'} className={classes.divValor}
+          defaultValue={eventoDetalhes.eventoDetalhes.cidade} onChange={(event:any) => setCidade(event.value)}
+          InputLabelProps={{ shrink: true }} inputProps={{ maxLength: 100 }}
+          inputRef={cidadeRef} disabled={disabled}
+        />
+        <TextField 
+          id={`cep`} label="Cep" autoComplete={'false'} size={'small'} className={classes.divValor}
+          defaultValue={eventoDetalhes.eventoDetalhes.cep} onChange={(event:any) => setCidade(event.value)}
+          InputLabelProps={{ shrink: true }} inputProps={{ maxLength: 10 }}
+          inputRef={cepRef} disabled={disabled}
+        />
+        <TextField 
+          id={`coordenadas`} label="Coordenadas" autoComplete={'false'} size={'small'} className={classes.divValor}
+          defaultValue={eventoDetalhes.eventoDetalhes.coordenadas} onChange={(event:any) => setCidade(event.value)}
+          InputLabelProps={{ shrink: true }} inputProps={{ maxLength: 100 }}
+          inputRef={coordenadasRef} disabled={disabled}
+        />
       </div>
-    </div>
-    <div>
-        <Button 
-          className={classes.buttonBuscar}
-          style={{ background: (disabled ? '#c1c1c1' : '#04ccb9' ), color:'#fff' }}
-          variant="contained" size="small" onClick={() => {} } 
-          disabled={disabled}
+      <div className={classes.divRow} >
+        <Autocomplete
+            id="organizador"
+            size={'small'} sx={{ width: 510 }}
+            open={open}
+            onOpen={() =>  { setOpen(true); }}
+            onClose={() => { setOpen(false); }}
+            defaultValue={eventoDetalhes.eventoDetalhes.organizador}
+            isOptionEqualToValue={(option:any, value:any) => option.nome_fantasia === value.nome_fantasia }
+            getOptionLabel={(option:any) => option.nome_fantasia}
+            options={dados}
+            onChange={(event, novoOrganizador:any) => { setOrganizador(novoOrganizador); }}  
+            disabled={disabled}
+            loading={loadingInput}
+            renderInput={(params) => (
+              <TextField
+                required
+                {...params}
+                label="Organizador"
+                inputRef={organizadorRef}
+                onChange={(event:any) => { setBusca(event.value); setFirstTime(false); }}
+                InputProps={{
+                  ...params.InputProps,
+                  endAdornment: (
+                    <>
+                      {loadingInput ? <CircularProgress color="inherit" size={20} /> : null}
+                      {params.InputProps.endAdornment}
+                    </>
+                  ),
+                }}
+            />
+          )}
+          />
+          <Switch color="primary"  size="medium"  checked={ativo} disabled={disabled} onChange={(event:any) => setAtivo(event.target.checked)} inputRef={ativoRef} />
+      </div>
+      <div className={classes.divRowEnd} >
+        <TextField
+            select id={`tipoCorrida`} label="Tipo Corrida" size={'small'}
+            InputLabelProps={{ shrink: true }} SelectProps={{ native: true }}
+            value={tipoCorrida} onChange={(event:any) => setTipoCorrida(event.value) } 
+            inputRef={tipoCorridaRef} disabled={disabled}
+          >
+          <option value={''}> - </option>
+          { listaTipoCorridas !== undefined && listaTipoCorridas.length > 0 ? listaTipoCorridas.map( ( tipoCorrida:any ) => { return (<><option value={tipoCorrida.uuid}> {tipoCorrida.nome} </option></>) }) :'' }
+        </TextField>
+        <TextField
+          select id={`fonte`} label="Fonte" size={'small'}
+          InputLabelProps={{ shrink: true }} SelectProps={{ native: true }}
+          value={fonte} onChange={(event:any) => setFonte(event.value)} 
+          inputRef={fonteRef} disabled={disabled}
         >
-          Divulgar Evento
-        </Button>
+          <option value={''}> - </option>
+          { listaFontes !== undefined && listaFontes.length > 0 ? listaFontes.map( ( fonte:any ) => { return (<><option value={fonte.uuid}> {fonte.nome} </option></>) }) :'' }
+        </TextField>
+      </div>
+      <div className={classes.divRowEnd} >
+        <div style={{marginRight: '10px'}}>
+          {disabled && !divulgar ? (<><CircularProgress size={30} /></>) : (<></>)}
+        </div>
+        <div>
+          <Button 
+            className={classes.buttonBuscar}
+            style={{ background: (disabled ? '#c1c1c1' : '#04ccb9' ), color:'#fff' }}
+            variant="contained" size="small" onClick={() => salvarEvento(String(eventoDetalhes.eventoDetalhes.uuid))} 
+            disabled={disabled}
+          >
+            Salvar
+          </Button>
+        </div>
+      </div>
+      <div style={{ display:'flex', flexDirection: 'column', alignItems: 'center', justifyContent:'flex-end', width: '100%', height: '100%', padding: 2, fontWeight: 1 }} >
+          <div style={{ display:'flex', flexDirection: 'column', backgroundColor:'#c6c6c6', width: '100%' , alignItems: 'center'}} >
+            <Button 
+              className={classes.buttonBuscar}
+              style={{ background: ( divulgar ? '#2e7d32' : '#c1c1c1' ), color: '#fff', width: '100%'   }}
+              variant="contained" size="small" onClick={() => dilvugarEvento(String(eventoDetalhes.eventoDetalhes.uuid), !divulgar)} 
+            >
+              <strong>{ divulgar ? 'Evento divulgado' : 'Divulgar evento'}</strong>
+            </Button>
+          </div>
       </div>
     </div>
   );
