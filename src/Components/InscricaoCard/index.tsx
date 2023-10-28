@@ -28,7 +28,7 @@ interface IEventoProps{
 const InscricaoCard = (eventoUid?:IEventoProps) => {
   const classes = useStyles();
   const session = useSelector( (state:ISessaoParametros) => state.session );
-  const statusEventoDivulgar = useSelector( (state:IDivulgarParametros) => state.divulgarEvento );
+  const eventoDivulgar = useSelector( (state:IDivulgarParametros) => state.divulgarEvento );
   const dispatch = useDispatch();
   const [disabled,setDisabled] = useState(false);
   const loteRef = useRef<HTMLInputElement>(null);
@@ -49,7 +49,11 @@ const InscricaoCard = (eventoUid?:IEventoProps) => {
   const [inicioLote, setInicioLote] = useState("");
   const [fimLote, setFimLote] = useState("");
   const [loadingInput, setLoadingInput] = useState(false);
-
+  const [statusDivulgar, setStatusDivulgar] = useState(false)
+  
+  useEffect(() => {
+    setStatusDivulgar(eventoDivulgar.statusDivulgar);
+  })
   async function salvar(uuidEvento?:string){
     dispatch(setAlertCustom({ mensagens: [], title: '', open: false, type: 'info'}));
     setDisabled(true);
@@ -221,7 +225,9 @@ const InscricaoCard = (eventoUid?:IEventoProps) => {
   },[eventoUid]);
   
   useEffect(() =>{
-    setDisabled(statusEventoDivulgar);
+   
+    setDisabled(statusDivulgar);
+    
   },[buscaLotes])
 
   const handleClickOpen = () => {
@@ -327,9 +333,9 @@ const InscricaoCard = (eventoUid?:IEventoProps) => {
             </Button>
             
             <Button 
-              className={ statusEventoDivulgar ? classes.btnSalvarDesabilitado : classes.btnSalvar}
+              className={ statusDivulgar ? classes.btnSalvarDesabilitado : classes.btnSalvar}
               title='Salvar'
-              style={{ background: '#04ccb9', color:'#fff' }}
+              style={{ background: (statusDivulgar  ? '#E0E0E0' : '#04ccb9') , color:'#fff' }}
               variant="contained" size="medium" onClick={() => salvar() } 
               disabled={disabled}
             >
@@ -338,7 +344,7 @@ const InscricaoCard = (eventoUid?:IEventoProps) => {
           </div>
           <hr style={{margin: 15}}/>
           <div style={{ display:'flex', flexDirection: 'column', alignItems: 'center', justifyContent:'flex-end', width: '100%', height: '100%', padding: 2, fontWeight: 1 }} >
-          {statusEventoDivulgar ?
+          {statusDivulgar ?
             (<>
               <div style={{ display:'flex', height:'3vh', borderColor: '#000 solid 2px' ,flexDirection: 'column', alignItems: 'center', justifyContent:'center', backgroundColor:'#fdeded', color: "rgb(95, 33, 32)", width: '85%' , }} >
                 Para editar os lotes, cancele a divulgação do evento.

@@ -23,7 +23,7 @@ const Home = () => {
     const fonteCorridas = useSelector( (state:IFonteCorridas) => state.fonteCorridas );
     const status = useSelector( (state:any) => state.status );
     const estados = useSelector( (state:any) => state.estados );
-
+    
     useEffect(() => {
 
         if(!firstTime && session.access_token.access_token && session.access_token.access_token !== undefined){

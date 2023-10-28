@@ -9,7 +9,7 @@ import ITipoCorridas from '../../shared/interfaces/ITipoCorridas'
 import IFonteCorridas from '../../shared/interfaces/IFonteCorridas'
 import useStyles from './styles';
 import { setAlertCustom } from '../../store/actions/AlertCustom.action';
-import { setDivulgarEvento } from '../../store/actions/DivulgarEvento.action';
+import { setDivulgarEvento, getDivulgarEvento } from '../../store/actions/DivulgarEvento.action';
 import IDivulgarParametros from '../../shared/interfaces/IDivulgarParametros';
 
 interface IDetalhesParam{
@@ -26,7 +26,7 @@ interface IOrganizadorDetalhesParam{
 const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
   const classes = useStyles();
   const session = useSelector( (state:ISessaoParametros) => state.session );
-  const statusEventoDivulgar = useSelector( (state:IDivulgarParametros) => state.divulgarEvento );
+  const divulgarEvento = useSelector( (state:IDivulgarParametros) => state.divulgarEvento );
   const dispatch = useDispatch();
   const [eventoTitulo,setEventoTitulo] = useState("");
   const [uf,setUF] = useState("");
@@ -80,8 +80,8 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
       setOrganizador(eventoDetalhes.eventoDetalhes.organizador || {});
       setFonte(eventoDetalhes.eventoDetalhes.fonte?.uuid || "")
       setTipoCorrida(eventoDetalhes.eventoDetalhes.tipo?.uuid || "")
-      setDivulgar(Boolean(statusEventoDivulgar))
-      dispatch(setDivulgarEvento(Boolean(statusEventoDivulgar)));
+      dispatch(setDivulgarEvento({uuidEvento: eventoDetalhes.eventoDetalhes.uuid, statusDivulgar: Boolean(eventoDetalhes.eventoDetalhes.divulgar)}));
+      setDivulgar(divulgarEvento.statusDivulgar);
     }
     if(eventoDetalhes.tipo !== undefined && eventoDetalhes.tipo !== ""){
       setTipoModal(eventoDetalhes.tipo)
@@ -90,9 +90,9 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
   },[eventoDetalhes, tipo]);
 
   useEffect(() =>{
-    setDisabled(statusEventoDivulgar);
-  })
-
+    console.log('disabled', divulgarEvento, disabled)
+    setDisabled(divulgarEvento.statusDivulgar);
+  },[divulgarEvento])
   
   async function salvarEvento(uuidEvento?:string){
     dispatch(setAlertCustom({ mensagens: [], title: '', open: false, type: 'info'}));
@@ -123,15 +123,16 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
         })
   }
 
-  async function dilvugarEvento(uuidEvento?:string, divulgarEvento?: any){
+  async function dilvugarEvento(uuidEvento?:string, divulgarBoolean?: any){
 
-    return await api.patch(`/eventos/${uuidEvento}`, { "divulgar" : divulgarEvento },
+    return await api.patch(`/eventos/${uuidEvento}`, { "divulgar" : divulgarBoolean },
     { headers: {
         'Authorization': `Bearer ${session.access_token.access_token}`
     }}).then( (result:any) => {
-        dispatch(setAlertCustom({ mensagens: ['Evento atualizado com sucesso!'], title: 'Sucesso', open: true, type: 'success'}));
-        setDivulgar(divulgarEvento);
-        dispatch(setDivulgarEvento(divulgarEvento));
+      setDivulgar(divulgarBoolean)
+      dispatch(setDivulgarEvento({ uuidEvento: eventoDetalhes.eventoDetalhes.uuid, statusDivulgar: divulgarBoolean }));   
+      dispatch(setAlertCustom({ mensagens: ['Evento atualizado com sucesso!'], title: 'Sucesso', open: true, type: 'success'}));
+      
     }).catch( (error:any) => {
       dispatch(setAlertCustom({ mensagens: ['Erro ao atualizar!'], title: 'Erro', open: true, type: 'error'}));
     })

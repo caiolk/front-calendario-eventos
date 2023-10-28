@@ -1,4 +1,4 @@
-const INITIAL_STATE = [{ divulgarEvento: false}];
+const INITIAL_STATE = { uuidEvento: null, statusDivulgar: false };
 
 export default function divulgarEvento(state:any = INITIAL_STATE, action: any){
 

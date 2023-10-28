@@ -1,3 +1,6 @@
 export default interface IDivulgarParametros{
-    divulgarEvento:boolean
+    divulgarEvento: {
+        uuidEvento: string,
+        statusDivulgar: boolean
+    }  
 }
