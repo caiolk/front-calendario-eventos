@@ -18,6 +18,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
+import { NumericFormat } from "react-number-format";
 
 
 
@@ -28,7 +29,7 @@ interface IEventoProps{
 const InscricaoCard = (eventoUid?:IEventoProps) => {
   const classes = useStyles();
   const session = useSelector( (state:ISessaoParametros) => state.session );
-  const eventoDivulgar = useSelector( (state:IDivulgarParametros) => state.divulgarEvento );
+  const divulgarEvento = useSelector( (state:IDivulgarParametros) => state.divulgarEvento );
   const dispatch = useDispatch();
   const [disabled,setDisabled] = useState(false);
   const loteRef = useRef<HTMLInputElement>(null);
@@ -52,7 +53,7 @@ const InscricaoCard = (eventoUid?:IEventoProps) => {
   const [statusDivulgar, setStatusDivulgar] = useState(false)
   
   useEffect(() => {
-    setStatusDivulgar(eventoDivulgar.statusDivulgar);
+    setStatusDivulgar(divulgarEvento.statusDivulgar);
   })
   async function salvar(uuidEvento?:string){
     dispatch(setAlertCustom({ mensagens: [], title: '', open: false, type: 'info'}));
@@ -120,7 +121,7 @@ const InscricaoCard = (eventoUid?:IEventoProps) => {
               setNomeLote(item.lote.nome);
               setUuidLote(item.lote.uuid);
               setDescricao(item.descricao);
-              setValor(item.valor);
+              setValor(item.valor_formatado);
               setInicioLote(item.lote.data_inicio);
               setFimLote(item.lote.data_fim);
 
@@ -159,14 +160,13 @@ const InscricaoCard = (eventoUid?:IEventoProps) => {
       "lote": loteNome,
       "nome": loteNome,
       "descricao": descricaoRef.current?.value,
-      "valor": valor,
+      "valor": parseFloat(valor.replace(",",".")).toFixed(2),
       "data_inicio": inicioLoteRef.current?.value,
       "data_fim": fimLoteRef.current?.value,
     };
     if(uuidInscricao !== "" && uuidInscricao !== undefined){
       data.uuid = uuidInscricao;
     }
-
     return data;
   }
   function resetar(){
@@ -298,16 +298,22 @@ const InscricaoCard = (eventoUid?:IEventoProps) => {
             disabled={disabled}
             inputRef={descricaoRef}
           />
-          <TextField 
-            id={`valor`} label="Valor" autoComplete={'false'} size={'small'} className={classes.divValor}
-            value={valor} onChange={(event:any) => setValor(event.target.value) }
-            InputLabelProps={{ shrink: true }} inputProps={{ maxLength: 100 }} style={{ width: '10vw'}}
-            InputProps={{
-              inputComponent: NumberFormatCustom,
-              inputProps: { decimalScale: 2, maxLength: 10 , style: { textAlign: 'right'} }
-          }}
-            disabled={disabled} 
-          />
+
+          <NumericFormat
+                  id={`valor`} label="Valor" autoComplete={'false'} size={'small'} className={classes.divValor}
+                  value={valor}
+                  style={{ width: '10vw', }}
+                  customInput={TextField}
+                  InputLabelProps={{ shrink: true }}
+                  onChange={(event:any) => setValor(event.target.value)}
+                  decimalSeparator=","
+                  decimalScale={2}
+                  inputProps={{ maxLength: 10 }} 
+                  InputProps={{
+                    inputProps: { decimalScale: 2, maxLength: 10 , style: { textAlign: 'right'} }
+                  }}
+                  disabled={disabled} 
+                />
           
             <TextField 
               id={`inicio_lote`} label="Inicio" autoComplete={'false'} size={'small'} className={classes.divValor}
@@ -346,7 +352,7 @@ const InscricaoCard = (eventoUid?:IEventoProps) => {
           <div style={{ display:'flex', flexDirection: 'column', alignItems: 'center', justifyContent:'flex-end', width: '100%', height: '100%', padding: 2, fontWeight: 1 }} >
           {statusDivulgar ?
             (<>
-              <div style={{ display:'flex', height:'3vh', borderColor: '#000 solid 2px' ,flexDirection: 'column', alignItems: 'center', justifyContent:'center', backgroundColor:'#fdeded', color: "rgb(95, 33, 32)", width: '85%' , }} >
+              <div style={{ display:'flex', height:'3vh', borderColor: '#000 solid 2px' ,flexDirection: 'column', alignItems: 'center', justifyContent:'center', backgroundColor:'#fdeded', color: "rgb(95, 33, 32)", width: '90%' , }} >
                 Para editar os lotes, cancele a divulgação do evento.
               </div>
             </>) : (<></>)  
@@ -383,7 +389,7 @@ const InscricaoCard = (eventoUid?:IEventoProps) => {
                           </div>
                         { Object.values(inscricao).map((item:any) => {
                           return <div style={{ display:'flex', flexDirection: 'row', alignItems: 'center', justifyContent:'space-between', width: '100%', fontWeight: 1}}>
-                                     <div style={{ marginLeft: 12}}> {item.descricao} - R$ {item.valor} </div>
+                                     <div style={{ marginLeft: 12}}> {item.descricao} - R$ {item.valor_formatado} </div>
                                      <div> 
                                         <IconButton aria-label="delete" color="info" onClick={ () => editar(item.uuid) } disabled={disabled} >
                                           <EditIcon fontSize="inherit"  />

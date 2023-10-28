@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { TextField, Button, CircularProgress, Switch, Autocomplete } from '@mui/material';
-import { debounce } from "lodash"
+import { debounce, first } from "lodash"
 import api from '../../services/api';
 import ISessaoParametros from '../../shared/interfaces/ISessaoParametros'
 import IEventoDetalhesParam from '../../shared/interfaces/IEventoDetalhesParam'
@@ -66,7 +66,7 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
   const listaFontes = useSelector( (state:IFonteCorridas) => state.fonteCorridas );
   const listaStatus = useSelector( (state:any) => state.status );
   const listaEstados = useSelector( (state:any) => state.estados );
-
+  
   useEffect(() => {
     if(eventoDetalhes.eventoDetalhes){
       setUF(String(eventoDetalhes.eventoDetalhes.uf))
@@ -80,8 +80,13 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
       setOrganizador(eventoDetalhes.eventoDetalhes.organizador || {});
       setFonte(eventoDetalhes.eventoDetalhes.fonte?.uuid || "")
       setTipoCorrida(eventoDetalhes.eventoDetalhes.tipo?.uuid || "")
-      dispatch(setDivulgarEvento({uuidEvento: eventoDetalhes.eventoDetalhes.uuid, statusDivulgar: Boolean(eventoDetalhes.eventoDetalhes.divulgar)}));
+      
+      if(!firstTime){
+        dispatch(setDivulgarEvento({uuidEvento: eventoDetalhes.eventoDetalhes.uuid, statusDivulgar: Boolean(eventoDetalhes.eventoDetalhes.divulgar)}));
+      }
       setDivulgar(divulgarEvento.statusDivulgar);
+      
+      
     }
     if(eventoDetalhes.tipo !== undefined && eventoDetalhes.tipo !== ""){
       setTipoModal(eventoDetalhes.tipo)
@@ -90,7 +95,6 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
   },[eventoDetalhes, tipo]);
 
   useEffect(() =>{
-    console.log('disabled', divulgarEvento, disabled)
     setDisabled(divulgarEvento.statusDivulgar);
   },[divulgarEvento])
   
