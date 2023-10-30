@@ -19,8 +19,8 @@ const style = {
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: '90vw',
-  height: '90vh',
+  width: '85vw',
+  height: '85vh',
   bgcolor: 'background.paper',
   boxShadow: 24,
   p: 4,
@@ -113,12 +113,26 @@ const BasicModal: React.ForwardRefRenderFunction<IModalHandles> = (props, ref) =
             <div className={classes.info} style={{ flexDirection: 'column',  justifyContent:'center', alignItems:'center', overflow: 'auto', width: '100%' }} >
                 <div>Detalhes do evento</div>
             </div>
-            <div className={classes.divPrincipal} >      
-                  { (dadosEventos !== null && dadosEventos !== undefined && Object.keys(dadosEventos).length > 0) || (tipo !== undefined && tipo !== "") ? 
-                    (<><EventoDetalhes key={1} eventoDetalhes={dadosEventos} tipo={tipo} /></>) : 
-                    (<><div> Detalhe não disponível.</div></>)
-                  }  
-              </div>
+            <TabContext value={value}>
+            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+              <TabList onChange={handleChange} aria-label="Evento Inscrição detalhes" >
+                <Tab label="Evento" value="1" />
+                <Tab label="Inscrições" value="2" />
+              </TabList>
+            </Box>
+            <TabPanel value="1">
+              <div className={classes.divPrincipal} >      
+                      { (dadosEventos !== null && dadosEventos !== undefined && Object.keys(dadosEventos).length > 0) || (tipo !== undefined && tipo !== "") ? 
+                        (<><EventoDetalhes key={1} eventoDetalhes={dadosEventos} tipo={tipo} /></>) : 
+                        (<><div> Detalhe não disponível.</div></>)
+                      }  
+                  </div>
+            </TabPanel>
+            <TabPanel value="2">
+              <InscricaoCard eventoUid={(dadosEventos.uuid ? dadosEventos.uuid : "")}/>
+            </TabPanel>
+          </TabContext>
+            
         </Box>
       </Modal>
     </div>

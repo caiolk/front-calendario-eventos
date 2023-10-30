@@ -14,7 +14,7 @@ const useStyles = makeStyles(() => ({
     flexDirection: 'row',  
     justifyContent: 'space-between', 
     width: '98%', 
-    margin: '10px'  
+    margin: '5px'  
   },
   divRowEnd:{
     display : 'flex', 
@@ -101,7 +101,22 @@ const useStyles = makeStyles(() => ({
     padding: 5,
     color: '#fff',
     fontWeight: 'bold'
-  }
+  },
+  divPrincipalLote:{
+    display:'flex', 
+    flexDirection: 'column', 
+    height: '100%', 
+    width: '100%', 
+    justifyContent: 'center'
+  },
+
+  btnSalvarDesabilitado:{
+    width:'40px',
+    height:'35px',
+    background:'#61b0a8',
+    borderColor:'#61b0a8',
+    color:'#fff',    
+  },
     
 }));
 
