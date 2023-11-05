@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import IAlertCustomParm from '../../shared/interfaces/IAlertCustomParm'
 
-const AlertCustom = () => {
+const AlertCustom = (key?:any) => {
     const alertCustom = useSelector( (state:IAlertCustomParm) => state.alertCustom );
     const dispatch = useDispatch();
     const [open,setOpen] = useState(false);
@@ -49,7 +49,7 @@ const AlertCustom = () => {
     }
     return (
         <>
-            <Snackbar open={open} autoHideDuration={5000}  onClose={() => { setOpen(false) } } >
+            <Snackbar key={key} open={open} autoHideDuration={5000}  onClose={() => { setOpen(false) } } >
                 <div> {tipoAlert(tipo)} </div>
             </Snackbar>
         </>

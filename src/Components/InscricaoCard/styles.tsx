@@ -6,22 +6,14 @@ const useStyles = makeStyles(() => ({
     flexDirection: 'row', 
     height: '75%', 
     width: '100%', 
-    alignItems:'center',
     justifyContent: 'center'
   },
-  divRow:{
-    display : 'flex', 
-    flexDirection: 'row',  
-    justifyContent: 'space-between', 
-    width: '98%', 
-    margin: '5px'  
-  },
-  divRowEnd:{
-    display : 'flex', 
-    flexDirection: 'row',  
-    justifyContent: 'flex-end', 
-    width: '98%', 
-    margin: '10px'  
+  divPrincipalLote:{
+    display:'flex', 
+    flexDirection: 'column', 
+    height: '75%', 
+    width: '100%', 
+    justifyContent: 'center'
   },
   paper:{
     display:'flex', 
@@ -69,7 +61,6 @@ const useStyles = makeStyles(() => ({
   btnSalvar:{
     width:'50px',
     height:'35px',
-
   },
   btnSalvarAtivo:{
       width:'10px',
@@ -82,14 +73,7 @@ const useStyles = makeStyles(() => ({
       },
       fontSize: '8px'
   },
-  stparc: {
-    fontSize: '10px'
-  },
-  listaParcelas: { 
-    display:'flex', 
-    alignItems:'flex-end',
-    justifyContent:'space-around'
-  },
+
   info:{
     display:'flex', 
     flexDirection: 'row', 
@@ -102,12 +86,11 @@ const useStyles = makeStyles(() => ({
     color: '#fff',
     fontWeight: 'bold'
   },
-  divPrincipalLote:{
-    display:'flex', 
-    flexDirection: 'column', 
-    height: '100%', 
-    width: '100%', 
-    justifyContent: 'center'
+  addIcon:{
+    width:'1px',
+    height:'30px',
+    color:'#fff',
+    fontSize: '12px'
   },
 
   btnSalvarDesabilitado:{
@@ -117,7 +100,6 @@ const useStyles = makeStyles(() => ({
     borderColor:'#61b0a8',
     color:'#fff',    
   },
-    
 }));
 
 export default useStyles;
