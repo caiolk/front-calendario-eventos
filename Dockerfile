@@ -1,5 +1,7 @@
 #Stage 1
 FROM node:17-alpine as builder
+
+RUN apk add bash nano
 WORKDIR /app
 COPY package.json .
 COPY package-lock.json .
