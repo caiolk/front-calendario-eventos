@@ -96,6 +96,7 @@ const Login = (props:LoginParams) => {
                                 error={loginErro}
                                 helperText={ (loginErro ? "Campo obrigatório." : "") }
                                 autoComplete="off"
+                                defaultValue={"caio.kozano@live.com"}
                                 inputProps={{ maxLength: 25 }}
                                 className={classes.intputLogin}
                                 onChange={ (value:any) => {
@@ -118,6 +119,7 @@ const Login = (props:LoginParams) => {
                                 helperText={(senhaErro ? "Campo obrigatório." : "")}
                                 label="Senha" 
                                 type="password"
+                                defaultValue={"password"}
                                 autoComplete="off"
                                 className={classes.intputSenha}
                                 inputProps={ { maxLength: 25 } }

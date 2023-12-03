@@ -131,7 +131,7 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
     setDisabled(true);
     let evento = mountData();
 
-    if(tipoModal == 'novo'){
+    if(tipoModal === 'novo'){
       return await api.post(`/eventos/`, {...evento},
         { headers: {
             'Authorization': `Bearer ${session.access_token.access_token}`
@@ -178,7 +178,10 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
        
         return () => { clearTimeout(delayDebounceFn); setBusca(null); setLoadingInput(false); }
       }
-      buscarInscricoesEvento(eventoDetalhes.eventoDetalhes.uuid);
+      if(eventoDetalhes.eventoDetalhes.uuid !== undefined && tipoModal.trim() !=='novo'){
+        buscarInscricoesEvento(eventoDetalhes.eventoDetalhes.uuid);
+      }
+      
   }, [busca, firstTime])
 
   const buscaOrganizadores = useCallback( async () => {
@@ -278,7 +281,6 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
       Object.values(inscricoes).map((inscricao:any) => {
         inscricao.map( (item:any) => {
           if(item.uuid === uuidInscricao){
-            
               setUuidInscricao(item.uuid);
               setNomeLote(item.lote.nome);
               setUuidLote(item.lote.uuid);
@@ -286,7 +288,6 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
               setValor(item.valor_formatado);
               setInicioLote(item.lote.data_inicio);
               setFimLote(item.lote.data_fim);
-
           }
         })
       })
@@ -494,7 +495,6 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
           <div>Inscrições</div>
       </div>
       <div className={classes.divRowEnd} style={{ 'height': '45vh'}} >
-        
         <div className={classes.divPrincipalLote}>
             <div style={{display:'flex', flexDirection: 'row', alignItems: 'center', justifyContent:'space-between', width: '100%', padding: 2}}>
               <TextField 
@@ -539,12 +539,12 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
                     /> */}
 
               <TextField 
-              id={`descricao`} label="Descricao" autoComplete={'false'} size={'small'} className={classes.divValor}
-              value={descricao} onChange={(event:any) => setDescricao(event.target.value) }
-              InputLabelProps={{ shrink: true }} inputProps={{ maxLength: 100 }} style={{ width: '20vw'}}
-              disabled={disabled}
-              inputRef={descricaoRef}
-            />
+                id={`descricao`} label="Descricao" autoComplete={'false'} size={'small'} className={classes.divValor}
+                value={descricao} onChange={(event:any) => setDescricao(event.target.value) }
+                InputLabelProps={{ shrink: true }} inputProps={{ maxLength: 100 }} style={{ width: '20vw'}}
+                disabled={disabled}
+                inputRef={descricaoRef}
+              />
 
             <NumericFormat
                     id={`valor`} label="Valor" autoComplete={'false'} size={'small'} className={classes.divValor}
@@ -657,7 +657,6 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
                   </div>) : 
                   (<></>)
               } 
-              
             </div>
             <div style={{ display:'flex', flexDirection: 'column', backgroundColor:'#c6c6c6', width: '100%' , alignItems: 'center', marginTop: '1%'}} >
                 <Button 
@@ -690,12 +689,9 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
                   </Button>
                 </DialogActions>
               </Dialog>
-              
             </div>
-            
-              
-          
       </div>
+
     </div> 
   </div>
   );
