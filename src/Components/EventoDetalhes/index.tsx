@@ -9,7 +9,8 @@ import ITipoCorridas from '../../shared/interfaces/ITipoCorridas'
 import IFonteCorridas from '../../shared/interfaces/IFonteCorridas'
 import useStyles from './styles';
 import { setAlertCustom } from '../../store/actions/AlertCustom.action';
-import { setDivulgarEvento, getDivulgarEvento } from '../../store/actions/DivulgarEvento.action';
+import { setDivulgarEvento } from '../../store/actions/DivulgarEvento.action';
+import { setNovoEvento } from '../../store/actions/NovoEvento.action';
 import IDivulgarParametros from '../../shared/interfaces/IDivulgarParametros';
 
 import EditIcon from '@mui/icons-material/Edit';
@@ -35,10 +36,20 @@ interface IOrganizadorDetalhesParam{
   site?:string
 }
 
+interface INovoEventoParam{
+  novoEvento: {
+    evento: {
+      novo?: boolean
+    }
+  }
+}
+
 const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
   const classes = useStyles();
   const session = useSelector( (state:ISessaoParametros) => state.session );
   const divulgarEvento = useSelector( (state:IDivulgarParametros) => state.divulgarEvento );
+  const eventoNovo =  useSelector( (state:INovoEventoParam) => state.novoEvento );
+  
   const dispatch = useDispatch();
   const [eventoTitulo,setEventoTitulo] = useState("");
   const [uf,setUF] = useState("");
@@ -51,6 +62,8 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
   const [dataEvento,setDataEvento] = useState("");
   const [urlPagina,setUrlPagina] = useState("");
   const [disabled,setDisabled] = useState(false);
+  const [disabledLoteInscricao,setDisabledLoteInscricao] = useState(false);
+  
   const [organizador,setOrganizador] = useState<IOrganizadorDetalhesParam>({})
   const [firstTime,setFirstTime] = useState(true);
   const eventoTituloRef = useRef<HTMLInputElement>(null);
@@ -85,6 +98,7 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
   const fimLoteRef = useRef<HTMLInputElement>(null);
   const [valor,setValor] = useState("");
   const [inscricoes, setInscricoes] = useState({});
+  const [temInscricao, setTemInscricao] = useState(false);
   const [lotes, setLotes] = useState([]);
   const [uuidInscricao, setUuidInscricao] = useState("");
   const [uuidInscricaoDeletar, setUuidInscricaoDeletar] = useState("");
@@ -95,6 +109,7 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
   const [inicioLote, setInicioLote] = useState("");
   const [fimLote, setFimLote] = useState("");
   const [statusDivulgar, setStatusDivulgar] = useState(false)
+  const [eventoUuid, setEventoUuid] = useState("");
 
   useEffect(() => {
     if(eventoDetalhes.eventoDetalhes){
@@ -110,6 +125,10 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
       setFonte(eventoDetalhes.eventoDetalhes.fonte?.uuid || "")
       setTipoCorrida(eventoDetalhes.eventoDetalhes.tipo?.uuid || "")
       
+      if(eventoDetalhes.eventoDetalhes.uuid !== "" && eventoDetalhes.eventoDetalhes.uuid !== undefined){
+        setEventoUuid(eventoDetalhes.eventoDetalhes.uuid)
+      }
+
       dispatch(setDivulgarEvento({uuidEvento: eventoDetalhes.eventoDetalhes.uuid, statusDivulgar: Boolean(eventoDetalhes.eventoDetalhes.divulgar)}));
       setDivulgar(divulgarEvento.statusDivulgar);
       
@@ -136,8 +155,14 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
         { headers: {
             'Authorization': `Bearer ${session.access_token.access_token}`
         }}).then( (result:any) => {
+            if(result.data.data.uuid!== "" && result.data.data.uuid !== undefined){
+              setEventoUuid(result.data.data.uuid)
+              setDisabledLoteInscricao(false)
+            }
             dispatch(setAlertCustom({ mensagens: ['Evento salvo com sucesso!'], title: 'Sucesso', open: true, type: 'success'}));
             setDisabled(false);
+            dispatch(setNovoEvento({ evento: { novo: true } }));
+            
         }).catch( (error:any) => {
           setDisabled(false);
           dispatch(setAlertCustom({ mensagens: ['Erro ao salvar!'], title: 'Erro', open: true, type: 'error'}));
@@ -180,7 +205,10 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
       }
       if(eventoDetalhes.eventoDetalhes.uuid !== undefined && tipoModal.trim() !=='novo'){
         buscarInscricoesEvento(eventoDetalhes.eventoDetalhes.uuid);
+      }else{
+        setDisabledLoteInscricao(true)
       }
+      
       
   }, [busca, firstTime])
 
@@ -221,8 +249,13 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
       "tipo_evento_uuid": tipoCorridaRef.current?.value,
       "ativo": ativoRef.current?.checked === true ? 1 : 0 ,
     };
+    
     if(eventoDetalhes.eventoDetalhes.uuid !== undefined){
       data = Object.assign(data, { "uuid" : eventoDetalhes.eventoDetalhes.uuid});
+    }else{
+      if(eventoUuid !== undefined && eventoUuid !== ""){
+        data = Object.assign(data, { "uuid" : eventoUuid});
+      } 
     }
     
     return data;
@@ -250,10 +283,11 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
           'Authorization': `Bearer ${session.access_token.access_token}`
       }}).then( (result:any) => {
           setInscricoes(result.data.data)
+          setTemInscricao(true);
    
       }).catch( (error:any) => {
         setInscricoes({})
-   
+        setTemInscricao(false);
       }) 
   }
 
@@ -295,6 +329,7 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
   }
 
   async function deletar(uuid?:string){
+    let _eventoUUid =  eventoDetalhes.eventoDetalhes.uuid !== undefined ? eventoDetalhes.eventoDetalhes.uuid : eventoUuid
     dispatch(setAlertCustom({ mensagens: [], title: '', open: false, type: 'info'}));
     setDisabled(true);
     
@@ -305,7 +340,7 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
           'Authorization': `Bearer ${session.access_token.access_token}`
       }}).then( (result:any) => {
           dispatch(setAlertCustom({ mensagens: [`${tipoDeletar} deletado com sucesso!`], title: 'Sucesso', open: true, type: 'success'}));
-          buscarInscricoesEvento(eventoDetalhes.eventoDetalhes.uuid);
+          buscarInscricoesEvento(_eventoUUid);
           setDisabled(false);
       }).catch( (error:any) => {
         setDisabled(false);
@@ -315,6 +350,7 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
   }
 
   async function salvar(uuidEvento?:string){
+    let _eventoUUid =  eventoDetalhes.eventoDetalhes.uuid !== undefined ? eventoDetalhes.eventoDetalhes.uuid : eventoUuid
     dispatch(setAlertCustom({ mensagens: [], title: '', open: false, type: 'info'}));
     setDisabled(true);
     let inscricao = mountDataLote();
@@ -324,7 +360,7 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
           'Authorization': `Bearer ${session.access_token.access_token}`
       }}).then( (result:any) => {
           dispatch(setAlertCustom({ mensagens: ['Inscricao salva com sucesso!'], title: 'Sucesso', open: true, type: 'success'}));
-          buscarInscricoesEvento(eventoDetalhes.eventoDetalhes.uuid);
+          buscarInscricoesEvento(_eventoUUid);
           setDisabled(false);
       }).catch( (error:any) => {
         setDisabled(false);
@@ -335,8 +371,10 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
 
   function mountDataLote(){
 
+    let _eventoUUid =  eventoDetalhes.eventoDetalhes.uuid !== undefined ? eventoDetalhes.eventoDetalhes.uuid : eventoUuid
+
     let data:any = {
-      "eventos_uuid": eventoDetalhes.eventoDetalhes.uuid,
+      "eventos_uuid": _eventoUUid,
       "titulo": loteNome,
       "lote_uuid": loteUuid,
       "lote": loteNome,
@@ -350,6 +388,10 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
       data.uuid = uuidInscricao;
     }
     return data;
+  }
+
+  function exibeFormularioLote(exibeFormulario:boolean){
+    setTemInscricao(exibeFormulario)
   }
 
   return (
@@ -494,203 +536,225 @@ const EventoDetalhes = (eventoDetalhes: IDetalhesParam, tipo?:string) => {
       <div className={classes.info} style={{ flexDirection: 'column',  justifyContent:'center', alignItems:'center',  width: '100%', marginTop: '1%' }} >
           <div>Inscrições</div>
       </div>
-      <div className={classes.divRowEnd} style={{ 'height': '45vh'}} >
-        <div className={classes.divPrincipalLote}>
-            <div style={{display:'flex', flexDirection: 'row', alignItems: 'center', justifyContent:'space-between', width: '100%', padding: 2}}>
-              <TextField 
-                id={`lote`} label="Lote" autoComplete={'false'} size={'small'} className={classes.divValor}
-                value={loteNome} onChange={(event:any) => setNomeLote(event.target.value) }
-                InputLabelProps={{ shrink: true }} inputProps={{ maxLength: 10 }} style={{ width: '15vw'}}
-                disabled={disabled}
-                inputRef={loteRef}
-              />
+      <div className={ temInscricao ? classes.divRowEnd : classes.divRowMiddle } style={{ 'height': '45vh'}} >
 
-              {/* <Autocomplete
-                      id="organizador"
-                      size={'small'} sx={{ width: 510 }}
-                      open={open}
-                      onOpen={() =>  { setOpen(true); }}
-                      onClose={() => { setOpen(false); }}
-                      defaultValue={loteNome}
-                      isOptionEqualToValue={(option:any, value:any) => option.lote === value.lote }
-                      getOptionLabel={(option:any) => option.lote}
-                      options={lotes}
-                      onChange={(event, lotes:any) => { setLotes(lotes); }}  
-                      disabled={disabled}
-                      loading={loadingInput}
-                      renderInput={(params) => (
-                        <TextField
-                          required
-                          {...params}
-                          label="Lote"
-                          inputRef={loteRef}
-                          onChange={(event:any) => { setNomeLote(event.value); setFirstTime(false); }}
-                          InputProps={{
-                            ...params.InputProps,
-                            endAdornment: (
-                              <>
-                                {loadingInput ? <CircularProgress color="inherit" size={20} /> : null}
-                                {params.InputProps.endAdornment}
-                              </>
-                            ),
-                          }}
-                      />
-                    )}
-                    /> */}
+        { temInscricao ? (
 
-              <TextField 
-                id={`descricao`} label="Descricao" autoComplete={'false'} size={'small'} className={classes.divValor}
-                value={descricao} onChange={(event:any) => setDescricao(event.target.value) }
-                InputLabelProps={{ shrink: true }} inputProps={{ maxLength: 100 }} style={{ width: '20vw'}}
-                disabled={disabled}
-                inputRef={descricaoRef}
-              />
+          <div className={classes.divPrincipalLote}>
+              <div style={{display:'flex', flexDirection: 'row', alignItems: 'center', justifyContent:'space-between', width: '100%', padding: 2}}>
+                <TextField 
+                  id={`lote`} label="Lote" autoComplete={'false'} size={'small'} className={classes.divValor}
+                  value={loteNome} onChange={(event:any) => setNomeLote(event.target.value) }
+                  InputLabelProps={{ shrink: true }} inputProps={{ maxLength: 10 }} style={{ width: '15vw'}}
+                  disabled={disabled}
+                  inputRef={loteRef}
+                />
 
-            <NumericFormat
-                    id={`valor`} label="Valor" autoComplete={'false'} size={'small'} className={classes.divValor}
-                    value={valor}
-                    style={{ width: '10vw', }}
-                    customInput={TextField}
-                    InputLabelProps={{ shrink: true }}
-                    onChange={(event:any) => setValor(event.target.value)}
-                    decimalSeparator=","
-                    decimalScale={2}
-                    inputProps={{ maxLength: 10 }} 
-                    InputProps={{
-                      inputProps: { decimalScale: 2, maxLength: 10 , style: { textAlign: 'right'} }
-                    }}
-                    disabled={disabled} 
-                  />
-            
-              <TextField 
-                id={`inicio_lote`} label="Inicio" autoComplete={'false'} size={'small'} className={classes.divValor}
-                defaultValue={""} value={inicioLote} onChange={(event:any) => setInicioLote(event.target.value)}
-                InputLabelProps={{ shrink: true }} inputProps={{ maxLength: 100 }} style={{ width: '12vw'}} 
-                disabled={disabled} type='date'
-                inputRef={inicioLoteRef}
-              />
-              <TextField 
-                id={`fim_lote`} label="Fim" autoComplete={'false'} size={'small'} className={classes.divValor}
-                defaultValue={""} value={fimLote} onChange={(event:any) => setFimLote(event.target.value)}
-                InputLabelProps={{ shrink: true }} inputProps={{ maxLength: 100 }} style={{ width: '12vw'}} 
-                disabled={disabled} type='date'
-                inputRef={fimLoteRef}
-              />
-              <Button 
-                className={  !uuidInscricao ?  classes.btnSalvarDesabilitado : classes.btnSalvar }
-                title='Resetar'
-                variant="contained" size="small" onClick={() => !uuidInscricao ? '' : resetar() } 
-                disabled={!uuidInscricao ? true : false}
-              >
-                <RestartAltIcon/>
-              </Button>
+                {/* <Autocomplete
+                        id="organizador"
+                        size={'small'} sx={{ width: 510 }}
+                        open={open}
+                        onOpen={() =>  { setOpen(true); }}
+                        onClose={() => { setOpen(false); }}
+                        defaultValue={loteNome}
+                        isOptionEqualToValue={(option:any, value:any) => option.lote === value.lote }
+                        getOptionLabel={(option:any) => option.lote}
+                        options={lotes}
+                        onChange={(event, lotes:any) => { setLotes(lotes); }}  
+                        disabled={disabled}
+                        loading={loadingInput}
+                        renderInput={(params) => (
+                          <TextField
+                            required
+                            {...params}
+                            label="Lote"
+                            inputRef={loteRef}
+                            onChange={(event:any) => { setNomeLote(event.value); setFirstTime(false); }}
+                            InputProps={{
+                              ...params.InputProps,
+                              endAdornment: (
+                                <>
+                                  {loadingInput ? <CircularProgress color="inherit" size={20} /> : null}
+                                  {params.InputProps.endAdornment}
+                                </>
+                              ),
+                            }}
+                        />
+                      )}
+                      /> */}
+
+                <TextField 
+                  id={`descricao`} label="Descricao" autoComplete={'false'} size={'small'} className={classes.divValor}
+                  value={descricao} onChange={(event:any) => setDescricao(event.target.value) }
+                  InputLabelProps={{ shrink: true }} inputProps={{ maxLength: 100 }} style={{ width: '20vw'}}
+                  disabled={disabled}
+                  inputRef={descricaoRef}
+                />
+
+              <NumericFormat
+                      id={`valor`} label="Valor" autoComplete={'false'} size={'small'} className={classes.divValor}
+                      value={valor}
+                      style={{ width: '10vw', }}
+                      customInput={TextField}
+                      InputLabelProps={{ shrink: true }}
+                      onChange={(event:any) => setValor(event.target.value)}
+                      decimalSeparator=","
+                      decimalScale={2}
+                      inputProps={{ maxLength: 10 }} 
+                      InputProps={{
+                        inputProps: { decimalScale: 2, maxLength: 10 , style: { textAlign: 'right'} }
+                      }}
+                      disabled={disabled} 
+                    />
               
-              <Button 
-                className={ statusDivulgar ? classes.btnSalvarDesabilitado : classes.btnSalvar}
-                title='Salvar'
-                style={{ background: (statusDivulgar  ? '#E0E0E0' : '#04ccb9') , color:'#fff' }}
-                variant="contained" size="medium" onClick={() => salvar() } 
-                disabled={disabled}
-              >
-                Salvar
-              </Button>
-            </div>
-
-            {statusDivulgar ?  
-              (<div style={{ display:'flex', flexDirection: 'column', alignItems: 'center', justifyContent:'flex-end', width: '100%', padding: 2, fontWeight: 1 }} >
-                <div style={{ display:'flex', height:'3vh', borderColor: '#000 solid 2px' ,flexDirection: 'column', alignItems: 'center', justifyContent:'center', backgroundColor:'#fdeded', color: "rgb(95, 33, 32)", width: '90%' , }} >
-                  Para editar os lotes, cancele a divulgação do evento.
-                </div>
-              </div>) : (<></>)  
-            }
-          
-            <div style={{ display:'flex', flexDirection: 'row', alignItems: 'center', justifyContent:'space-between', width: '100%', padding: 2, fontWeight: 1, overflow: 'auto', height: '50vh' }}>
-              {inscricoes !== null && inscricoes !== undefined && Object.keys(inscricoes).length > 0  ? 
-                  (<div style={{display:'flex', flexDirection: 'column', alignItems: 'center', justifyContent:'flex-start', width: '100%', padding: 2, fontWeight: 1, height: '100%' }}>
-                    
-                    { Object.values(inscricoes).map( (inscricao:any) => {
-                      return (
-                          <div style={{ marginBottom:'10px',width: '90%', border: '0.2px #c6c6c6 solid', borderRadius: '5px 5px 5px 5px' }} > 
-                            <div style={{ fontSize: '18px', borderBottom: '0.2px #c6c6c6 solid', display:'flex', flexDirection: 'row', alignItems: 'center', width: '100%', padding: 5, fontWeight: 1 }} >
-
-                              <div style={{ fontSize: '18px', borderRight: '1px #c6c6c6 solid', backgroundColor:'#c6c6c6', borderRadius: '2px 2px 2px 2px', display:'flex', width: '20%', flexDirection: 'row', alignItems: 'center', justifyContent:'flex-start', padding: 5, fontWeight: 1 }}>
-                                {inscricao[0]['lote']['nome']}
-                              </div>
-                              <div style={{ display:'flex', flexDirection: 'row', alignItems: 'center', width: '100%', padding: 5, fontWeight: 1 }} >
-                                <span  style={{ fontWeight: 'bold', color: ( inscricao[0]['lote']['status_lote'] ? 'green' : 'red')}} > 
-                                  {inscricao[0]['lote']['data_inicio_formatada']} à {inscricao[0]['lote']['data_fim_formatada']}
-                                  <span style={{ fontSize: '12px'}} > &nbsp;({inscricao[0]['lote']['status_lote_string']}) </span>
-                                </span>
-                              </div> 
-                              <div style={{ display:'flex', flexDirection: 'row'}} >
-                                <IconButton size='small' aria-label="delete" color="error" onClick={ () => { 
-                                    setOpen(true); 
-                                    setUuidInscricaoDeletar(inscricao[0]['lote']['uuid']); 
-                                    setTipoDeletar('Lote');
-                                    } }
-                                    disabled={disabled}
-                                    >
-                                  <HighlightOffIcon  fontSize="inherit"/>
-                                </IconButton>
-                              </div> 
-                              
-                            </div>
-                          { Object.values(inscricao).map((item:any) => {
-                            return <div style={{ display:'flex', flexDirection: 'row', alignItems: 'center', justifyContent:'space-between', width: '100%', fontWeight: 1}}>
-                                      <div style={{ marginLeft: 12}}> {item.descricao} - R$ {item.valor_formatado} </div>
-                                      <div> 
-                                          <IconButton aria-label="delete" color="info" onClick={ () => editar(item.uuid) } disabled={disabled} >
-                                            <EditIcon fontSize="inherit"  />
-                                          </IconButton>
-                                          <IconButton aria-label="delete" color="error" onClick={ () => { setOpen(true); setUuidInscricaoDeletar(item.uuid); setTipoDeletar('Inscrição'); } } disabled={disabled}>
-                                            <HighlightOffIcon  fontSize="inherit"/>
-                                          </IconButton>
-                                        </div>
-                                    </div>
-                          })}
-                          
-                          </div>
-                          
-                      )
-                    })
-                    }
-                  </div>) : 
-                  (<></>)
-              } 
-            </div>
-            <div style={{ display:'flex', flexDirection: 'column', backgroundColor:'#c6c6c6', width: '100%' , alignItems: 'center', marginTop: '1%'}} >
+                <TextField 
+                  id={`inicio_lote`} label="Inicio" autoComplete={'false'} size={'small'} className={classes.divValor}
+                  defaultValue={""} value={inicioLote} onChange={(event:any) => setInicioLote(event.target.value)}
+                  InputLabelProps={{ shrink: true }} inputProps={{ maxLength: 100 }} style={{ width: '12vw'}} 
+                  disabled={disabled} type='date'
+                  inputRef={inicioLoteRef}
+                />
+                <TextField 
+                  id={`fim_lote`} label="Fim" autoComplete={'false'} size={'small'} className={classes.divValor}
+                  defaultValue={""} value={fimLote} onChange={(event:any) => setFimLote(event.target.value)}
+                  InputLabelProps={{ shrink: true }} inputProps={{ maxLength: 100 }} style={{ width: '12vw'}} 
+                  disabled={disabled} type='date'
+                  inputRef={fimLoteRef}
+                />
                 <Button 
-                  className={classes.buttonBuscar}
-                  style={{ background: ( divulgar ? '#2e7d32' : '#c1c1c1' ), color: '#fff', width: '100%'   }}
-                  variant="contained" size="small" onClick={() => dilvugarEvento(String(eventoDetalhes.eventoDetalhes.uuid), !divulgar)} 
+                  className={  !uuidInscricao ?  classes.btnSalvarDesabilitado : classes.btnSalvar }
+                  title='Resetar'
+                  variant="contained" size="small" onClick={() => !uuidInscricao ? '' : resetar() } 
+                  disabled={!uuidInscricao ? true : false}
                 >
-                  <strong>{ divulgar ? 'Evento divulgado' : 'Divulgar evento'}</strong>
+                  <RestartAltIcon/>
+                </Button>
+                
+                <Button 
+                  className={ statusDivulgar ? classes.btnSalvarDesabilitado : classes.btnSalvar}
+                  title='Salvar'
+                  style={{ background: (statusDivulgar  ? '#E0E0E0' : '#04ccb9') , color:'#fff' }}
+                  variant="contained" size="medium" onClick={() => salvar() } 
+                  disabled={disabled}
+                >
+                  Salvar
                 </Button>
               </div>
-            <div>
-              <Dialog
-                open={open}
-                onClose={handleClose}
-                aria-labelledby="alert-dialog-title"
-                aria-describedby="alert-dialog-description"
-              >
-                <DialogTitle id="alert-dialog-title">
-                  {`Exclusão de ${tipoDeletar}?`}
-                </DialogTitle>
-                <DialogContent>
-                  <DialogContentText id="alert-dialog-description">
-                    {`Deseja mesmo excluir? (${tipoDeletar})`}
-                  </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                  <Button onClick={handleClose}>Não</Button>
-                  <Button onClick={() => { handleClose(); deletar(uuidInscricaoDeletar); }} autoFocus>
-                    Sim
+
+              {statusDivulgar ?  
+                (<div style={{ display:'flex', flexDirection: 'column', alignItems: 'center', justifyContent:'flex-end', width: '100%', padding: 2, fontWeight: 1 }} >
+                  <div style={{ display:'flex', height:'3vh', borderColor: '#000 solid 2px' ,flexDirection: 'column', alignItems: 'center', justifyContent:'center', backgroundColor:'#fdeded', color: "rgb(95, 33, 32)", width: '90%' , }} >
+                    Para editar os lotes, cancele a divulgação do evento.
+                  </div>
+                </div>) : (<></>)  
+              }
+            
+              <div style={{ display:'flex', flexDirection: 'row', alignItems: 'center', justifyContent:'space-between', width: '100%', padding: 2, fontWeight: 1, overflow: 'auto', height: '50vh' }}>
+                {inscricoes !== null && inscricoes !== undefined && Object.keys(inscricoes).length > 0  ? 
+                    (<div style={{display:'flex', flexDirection: 'column', alignItems: 'center', justifyContent:'flex-start', width: '100%', padding: 2, fontWeight: 1, height: '100%' }}>
+                      
+                      { Object.values(inscricoes).map( (inscricao:any) => {
+                        return (
+                            <div style={{ marginBottom:'10px',width: '90%', border: '0.2px #c6c6c6 solid', borderRadius: '5px 5px 5px 5px' }} > 
+                              <div style={{ fontSize: '18px', borderBottom: '0.2px #c6c6c6 solid', display:'flex', flexDirection: 'row', alignItems: 'center', width: '100%', padding: 5, fontWeight: 1 }} >
+
+                                <div style={{ fontSize: '18px', borderRight: '1px #c6c6c6 solid', backgroundColor:'#c6c6c6', borderRadius: '2px 2px 2px 2px', display:'flex', width: '20%', flexDirection: 'row', alignItems: 'center', justifyContent:'flex-start', padding: 5, fontWeight: 1 }}>
+                                  {inscricao[0]['lote']['nome']}
+                                </div>
+                                <div style={{ display:'flex', flexDirection: 'row', alignItems: 'center', width: '100%', padding: 5, fontWeight: 1 }} >
+                                  <span  style={{ fontWeight: 'bold', color: ( inscricao[0]['lote']['status_lote'] ? 'green' : 'red')}} > 
+                                    {inscricao[0]['lote']['data_inicio_formatada']} à {inscricao[0]['lote']['data_fim_formatada']}
+                                    <span style={{ fontSize: '12px'}} > &nbsp;({inscricao[0]['lote']['status_lote_string']}) </span>
+                                  </span>
+                                </div> 
+                                <div style={{ display:'flex', flexDirection: 'row'}} >
+                                  <IconButton size='small' aria-label="delete" color="error" onClick={ () => { 
+                                      setOpen(true); 
+                                      setUuidInscricaoDeletar(inscricao[0]['lote']['uuid']); 
+                                      setTipoDeletar('Lote');
+                                      } }
+                                      disabled={disabled}
+                                      >
+                                    <HighlightOffIcon  fontSize="inherit"/>
+                                  </IconButton>
+                                </div> 
+                                
+                              </div>
+                            { Object.values(inscricao).map((item:any) => {
+                              return <div style={{ display:'flex', flexDirection: 'row', alignItems: 'center', justifyContent:'space-between', width: '100%', fontWeight: 1}}>
+                                        <div style={{ marginLeft: 12}}> {item.descricao} - R$ {item.valor_formatado} </div>
+                                        <div> 
+                                            <IconButton aria-label="delete" color="info" onClick={ () => editar(item.uuid) } disabled={disabled} >
+                                              <EditIcon fontSize="inherit"  />
+                                            </IconButton>
+                                            <IconButton aria-label="delete" color="error" onClick={ () => { setOpen(true); setUuidInscricaoDeletar(item.uuid); setTipoDeletar('Inscrição'); } } disabled={disabled}>
+                                              <HighlightOffIcon  fontSize="inherit"/>
+                                            </IconButton>
+                                          </div>
+                                      </div>
+                            })}
+                            
+                            </div>
+                            
+                        )
+                      })
+                      }
+                    </div>) : 
+                    (<></>)
+                } 
+              </div>
+              <div style={{ display:'flex', flexDirection: 'column', backgroundColor:'#c6c6c6', width: '100%' , alignItems: 'center', marginTop: '1%'}} >
+                  <Button 
+                    className={classes.buttonBuscar}
+                    style={{ background: ( divulgar ? '#2e7d32' : '#c1c1c1' ), color: '#fff', width: '100%'   }}
+                    variant="contained" size="small" onClick={() => { dilvugarEvento(String(eventoDetalhes.eventoDetalhes.uuid), !divulgar);  } } 
+                  >
+                    <strong>{ divulgar ? 'Evento divulgado' : 'Divulgar evento'}</strong>
                   </Button>
-                </DialogActions>
-              </Dialog>
-            </div>
-      </div>
+                </div>
+              <div>
+                <Dialog
+                  open={open}
+                  onClose={handleClose}
+                  aria-labelledby="alert-dialog-title"
+                  aria-describedby="alert-dialog-description"
+                >
+                  <DialogTitle id="alert-dialog-title">
+                    {`Exclusão de ${tipoDeletar}?`}
+                  </DialogTitle>
+                  <DialogContent>
+                    <DialogContentText id="alert-dialog-description">
+                      {`Deseja mesmo excluir? (${tipoDeletar})`}
+                    </DialogContentText>
+                  </DialogContent>
+                  <DialogActions>
+                    <Button onClick={handleClose}>Não</Button>
+                    <Button onClick={() => { handleClose(); deletar(uuidInscricaoDeletar); }} autoFocus>
+                      Sim
+                    </Button>
+                  </DialogActions>
+                </Dialog>
+              </div>
+                
+        </div>
+      ) 
+      : 
+      (
+        <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems:'center'}} >
+
+          <Button 
+            className={classes.buttonLote}
+            style={{ background: (disabledLoteInscricao ? '#c1c1c1' : '#04ccb9' ), color:'#fff' }}
+            variant="contained" size="small" onClick={() => exibeFormularioLote(!temInscricao)} 
+            disabled={disabledLoteInscricao}
+          >
+            Adicionar Lotes de inscrição
+          </Button>
+          
+        </div>
+      ) 
+      
+      }
 
     </div> 
   </div>

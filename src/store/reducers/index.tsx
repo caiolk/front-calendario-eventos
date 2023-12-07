@@ -8,6 +8,7 @@ import fonteCorridas from './FonteCorridas';
 import estados from './Estados';
 import status from './Status';
 import divulgarEvento from './DivulgarEvento';
+import novoEvento from './NovoEvento';
 
 export default combineReducers({
     session,
@@ -17,5 +18,6 @@ export default combineReducers({
     fonteCorridas,
     estados,
     status,
-    divulgarEvento
+    divulgarEvento,
+    novoEvento
 })
