@@ -37,6 +37,7 @@ const BasicModal: React.ForwardRefRenderFunction<IModalHandles> = (props, ref) =
   const handleChange = (event: React.SyntheticEvent, newValue: string) => {
     setValue(newValue);
   };
+  
   const classes = useStyles();
   const [open, setOpen] = useState(false);
   const [uuidEvento, setUuidEvento] = useState("");
@@ -49,7 +50,6 @@ const BasicModal: React.ForwardRefRenderFunction<IModalHandles> = (props, ref) =
   
   const openModal = useCallback( (uuid?:string, tipoModal?:string) => {
         setDadosEventos({});
-        
         if(tipoModal===undefined){
           setLoading(true);  
           if(uuid!==""){
@@ -114,7 +114,7 @@ const BasicModal: React.ForwardRefRenderFunction<IModalHandles> = (props, ref) =
                 <div>Detalhes do evento</div>
             </div>
             <div className={classes.divPrincipal} >      
-                  { (dadosEventos !== null && dadosEventos !== undefined && Object.keys(dadosEventos).length > 0) || (tipo !== undefined && tipo !== "") ? 
+                  { (dadosEventos !== null && dadosEventos !== undefined && Object.keys(dadosEventos).length > 0) || (tipo !== undefined && tipo.trim() !== "") ? 
                     (<><EventoDetalhes key={1} eventoDetalhes={dadosEventos} tipo={tipo} /></>) : 
                     (<><div> Detalhe não disponível.</div></>)
                   }  

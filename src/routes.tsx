@@ -24,12 +24,13 @@ const { REACT_APP_HOST } = process.env;
 const history = createBrowserHistory();
 
 function logout(){
+  const domain = window.location.protocol + "//" + window.location.host;
   sessionStorage.clear();
   localStorage.clear();
-  window.location.href = `${REACT_APP_HOST}/login`
+  window.location.href = `${domain}/login`
 }
 
-function PrivateRoute({ children}:any) {
+function PrivateRoute({children}:any) {
   
   const auth = IsAuthenticated().auth;
   return auth ? children  : <Navigate to="/login" />;
