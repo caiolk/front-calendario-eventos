@@ -23,6 +23,14 @@ const useStyles = makeStyles(() => ({
     width: '98%', 
     margin: '10px'  
   },
+  divRowMiddle:{
+    display : 'flex', 
+    flexDirection: 'row',  
+    justifyContent: 'center', 
+    alignItems: 'center',
+    width: '98%', 
+    margin: '10px'  
+  },
   paper:{
     display:'flex', 
     flexDirection: 'row', 
@@ -55,6 +63,13 @@ const useStyles = makeStyles(() => ({
     color:'#fff',
     fontSize: '12px'
   },
+  buttonLote:{
+    width:'20vw',
+    height:'35px',
+    background: '#04ccb9',
+    color:'#fff',
+    fontSize: '12px'
+  },
   textFieldMoeda:{
     width:'12.5vw', 
     margin:2
@@ -81,14 +96,6 @@ const useStyles = makeStyles(() => ({
         color: '#fff'
       },
       fontSize: '8px'
-  },
-  stparc: {
-    fontSize: '10px'
-  },
-  listaParcelas: { 
-    display:'flex', 
-    alignItems:'flex-end',
-    justifyContent:'space-around'
   },
   info:{
     display:'flex', 

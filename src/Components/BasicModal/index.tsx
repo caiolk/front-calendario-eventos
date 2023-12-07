@@ -1,5 +1,5 @@
 import React, { useEffect, useState,  useCallback, forwardRef, useImperativeHandle } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { TextField, Box, Paper, Select , Button, Snackbar, Alert, Backdrop, CircularProgress, Tabs, Tab } from '@mui/material';
 import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
@@ -12,6 +12,7 @@ import IEventoDetalhesParam from '../../shared/interfaces/IEventoDetalhesParam'
 import useStyles from './styles';
 import EventoDetalhes from '../EventoDetalhes';
 import InscricaoCard from '../InscricaoCard';
+import { setNovoEvento } from '../../store/actions/NovoEvento.action';
 
 const style = {
   marginTop:'50vh',
@@ -26,6 +27,14 @@ const style = {
   p: 4,
 };
 
+interface INovoEventoParam{
+  novoEvento: {
+    evento: {
+      novo?: boolean
+    }
+  }
+}
+
 export interface IModalHandles {
   openModal: (uuid?:string, tipoModal?:string) => void;
   closeModal : () => void;
@@ -39,14 +48,22 @@ const BasicModal: React.ForwardRefRenderFunction<IModalHandles> = (props, ref) =
   };
   
   const classes = useStyles();
+  const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
   const [uuidEvento, setUuidEvento] = useState("");
   const [tipo, setTipo] = useState("");
   const [dadosEventos, setDadosEventos] = useState<IEventoDetalhesParam>({});
   const session = useSelector( (state:ISessaoParametros) => state.session );
+  const novoEvento =  useSelector( (state:INovoEventoParam) => state.novoEvento );
   const [loading, setLoading] = useState(false);
   const handleOpen = () => setOpen(true);
-  const handleClose = () => { setOpen(false); setValue("1") }
+  const handleClose = () => { 
+    setOpen(false); setValue("1"); 
+    if(novoEvento.evento.novo === true){
+      dispatch(setNovoEvento({ evento: { novo: false } }));
+      window.location.reload()
+    }
+ }
   
   const openModal = useCallback( (uuid?:string, tipoModal?:string) => {
         setDadosEventos({});
