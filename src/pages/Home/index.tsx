@@ -51,7 +51,15 @@ const Home = () => {
                 setLoading(false);
               }
               
-          }).catch( (error:any) => { })
+          }).catch( (error:any) => { 
+                if(error.response.status === 401){
+                    const domain = window.location.protocol + "//" + window.location.host;
+                    sessionStorage.clear();
+                    localStorage.clear();
+                    window.location.href = `${domain}/login`
+                }
+
+          })
     },[])
   
     const buscaFontes = useCallback( async (token?:string) => {
