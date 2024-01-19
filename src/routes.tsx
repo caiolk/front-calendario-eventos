@@ -18,6 +18,7 @@ import { setSession } from './store/actions/Session.action';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Eventos from './pages/Eventos';
+import ShowEvento from './pages/Eventos/ShowEvento';
 
 const { REACT_APP_HOST } = process.env;
 
@@ -138,6 +139,14 @@ const MyToolbar = withStyles({
                 element={
                   <PrivateRoute>
                     <Eventos />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/eventos/:uid"
+                element={
+                  <PrivateRoute>
+                    <ShowEvento />
                   </PrivateRoute>
                 }
               />
