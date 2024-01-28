@@ -17,7 +17,11 @@ const Home = () => {
     const classes = useStyles();
     const dispatch = useDispatch();
     const [loading, setLoading] = useState(true);
+    const [loadingDash, setLoadingDash] = useState(true);
     const [firstTime, setFirstTime] = useState(false);
+    const [ultimosEventos, setUltimosEventos] = useState([]);
+    const [proximosEventos, setProximosEventos] = useState([]);
+    const [eventosPorUf, setEventosPorUf] = useState([]);
     const session = useSelector( (state:ISessaoParametros) => state.session );
     const tipoCorridas = useSelector( (state:ITipoCorridas) => state.tipoCorridas );
     const fonteCorridas = useSelector( (state:IFonteCorridas) => state.fonteCorridas );
@@ -36,7 +40,14 @@ const Home = () => {
        
        
     },[firstTime, session])
-
+    useEffect(() =>{
+        if(session.access_token.access_token && session.access_token.access_token !== undefined){
+            buscaUltimosEventos(session.access_token.access_token);
+            buscaProximosEventos(session.access_token.access_token);
+            buscaEventosPorUf(session.access_token.access_token);
+        } 
+        
+    }, []);
 
     const buscaTipoCorridas = useCallback( async (token?:string) => {
         setLoading(true);
@@ -107,7 +118,54 @@ const Home = () => {
             }).catch( (error:any) => { })
     },[])
 
+    const buscaUltimosEventos = useCallback( async (token?:string) => {
+        setLoadingDash(true);
+        let _token = token != undefined ? token :  session.access_token.access_token
+        return await api.get( `/dashboard/eventos/ultimos`,
+            { headers: {
+                'Authorization': `Bearer ${token}`
+            } }).then( (result:any) => {
+                if(result.data.status){
+                    setUltimosEventos(result.data.data);
+                    setLoadingDash(false);
+                }
+                
+            }).catch( (error:any) => { console.log(error) })
+    },[])
 
+    const buscaProximosEventos = useCallback( async (token?:string) => {
+        setLoadingDash(true);
+        let _token = token != undefined ? token :  session.access_token.access_token
+        return await api.get( `/dashboard/eventos/proximos`,
+            { headers: {
+                'Authorization': `Bearer ${token}`
+            } }).then( (result:any) => {
+                if(result.data.status){
+                    setProximosEventos(result.data.data);
+                    setLoadingDash(false);
+                }
+                
+            }).catch( (error:any) => { console.log(error) })
+    },[])
+
+    const buscaEventosPorUf = useCallback( async (token?:string) => {
+        setLoadingDash(true);
+        let _token = token != undefined ? token :  session.access_token.access_token
+        return await api.get( `/dashboard/eventos/group-by-uf`,
+            { headers: {
+                'Authorization': `Bearer ${token}`
+            } }).then( (result:any) => {
+                if(result.data.status){
+                    setEventosPorUf(result.data.data);
+                    setLoadingDash(false);
+                }
+                
+            }).catch( (error:any) => { console.log(error) })
+    },[])
+
+    function replaceStr(texto:string){
+        return texto.length > 50 ?  `${texto.substring(0,50)} [...]` : texto
+    }
     return (<>
             {
              <Backdrop
@@ -116,7 +174,68 @@ const Home = () => {
                 <CircularProgress color="inherit" />
             </Backdrop> }
             <div className={classes.divPrincipal} >
-                
+                <div style={{  display:'flex', flexDirection: 'row', justifyContent:'center',  width: '95%', height: '40vh' }}>
+                    <Paper style={{ width: '50%', margin: '10px', padding: '10px', border: '1px #000 solid', height: '40vh'  }} >
+                        <div className={classes.info} >
+                            <div>Últimos Eventos Registrados no Sistema</div>
+                        </div>
+                        { loadingDash ? (
+                            <div style={{  display:'flex', flexDirection: 'row', justifyContent:'center', alignItems:'center', height: '85%' }} >
+                                <CircularProgress size={'50px'} color="inherit" />
+                            </div>
+                            
+                        ) : (
+                        <div style={{ overflow: 'auto', height: '90%', fontSize: '12px'}}>
+                            { ultimosEventos && Object.values(ultimosEventos).map((eventos:any) => {
+                                return (<>
+                                            <div style={{padding: '2px'}} title={eventos.evento_titulo}>
+                                                { `${eventos.evento_data_realizacao_formatada} - ${replaceStr(eventos.evento_titulo)} - (${eventos.uf} - ${eventos.cidade})` }
+                                            </div>
+                                        </>
+                                        )
+                             }) }
+                            
+                        </div>
+                        ) }
+                        
+                    </Paper>
+                    <Paper style={{ width: '50%', margin: '10px', padding: '10px', border: '1px #000 solid', height: '40vh' }} >
+                        <div className={classes.info} >
+                            <div>Próximos Eventos</div>
+                        </div>
+                        { loadingDash ? (
+                            <div style={{  display:'flex', flexDirection: 'row', justifyContent:'center', alignItems:'center', height: '85%' }} >
+                                <CircularProgress size={'50px'} color="inherit" />
+                            </div>
+                            
+                        ) : (
+                        <div style={{ overflow: 'auto', height: '90%', fontSize: '12px'}}>
+                            { proximosEventos && Object.values(proximosEventos).map((eventos:any) => {
+                                return (<>
+                                            <div style={{padding: '2px'}} title={eventos.evento_titulo}>
+                                                { `${eventos.evento_data_realizacao_formatada} - ${replaceStr(eventos.evento_titulo)} - (${eventos.uf} - ${eventos.cidade})` }
+                                            </div>
+                                        </>
+                                        )
+                             }) }
+                            
+                        </div>
+                        ) }
+                    </Paper>
+                </div>
+                <div style={{  display:'flex', flexDirection: 'row', justifyContent:'center',  width: '95%', height: '40vh', marginTop: '10px' }}>
+                    <Paper style={{ width: '50%', margin: '10px', padding: '10px', border: '1px #000 solid', height: '40vh'  }} >
+                        <div className={classes.info} >
+                            <div>Corridas em Aberto por UF</div>
+                        </div>
+                        { loadingDash ? (
+                            <div style={{  display:'flex', flexDirection: 'row', justifyContent:'center', alignItems:'center', height: '80%' }} >
+                                <CircularProgress size={'50px'} color="inherit" />
+                            </div>
+                            
+                        ) : (<>Dados</>) }
+                    </Paper>
+                </div>
             </div>
             </>)
 
