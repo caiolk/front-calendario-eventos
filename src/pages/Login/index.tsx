@@ -96,8 +96,7 @@ const Login = (props:LoginParams) => {
                                 error={loginErro}
                                 helperText={ (loginErro ? "Campo obrigatório." : "") }
                                 autoComplete="off"
-                                defaultValue={"caio.kozano@live.com"}
-                                inputProps={{ maxLength: 25 }}
+                                inputProps={{ maxLength: 40 }}
                                 className={classes.intputLogin}
                                 onChange={ (value:any) => {
                                     setLoginErro((value.target.value=="" ? true :  false)) 
@@ -119,10 +118,9 @@ const Login = (props:LoginParams) => {
                                 helperText={(senhaErro ? "Campo obrigatório." : "")}
                                 label="Senha" 
                                 type="password"
-                                defaultValue={"password"}
                                 autoComplete="off"
                                 className={classes.intputSenha}
-                                inputProps={ { maxLength: 25 } }
+                                inputProps={ { maxLength: 40 } }
                                 onChange={ (value:any) => {
                                     setSenhaErro((value.target.value=="" ? true :  false));
                                     setUpdate(true)

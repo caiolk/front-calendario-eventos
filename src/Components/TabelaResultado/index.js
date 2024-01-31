@@ -214,13 +214,21 @@ export default function EnhancedTable(props) {
                               <TableCell align="center" className={classes.tableFont}> {`${_data}`} </TableCell>
                               <TableCell align="center" className={classes.tableFont}> 
                                 <div style={{display:'flex', flexDirection: 'row', justifyContent:'space-evenly'}}> 
-                                  <Button 
+                                <Button 
+                                      style={{ background: 'rgb(64 144 213)' }}
+                                      variant="contained" 
+                                      size="small"
+                                      onClick={() => window.location.href = `/eventos/${row.uuid}` } >
+                                      <EditIcon  style={{fontSize : '16px'}}/>
+                                  </Button>
+                                  {/* <Button 
                                       style={{ background: 'rgb(64 144 213)' }}
                                       variant="contained" 
                                       size="small"
                                       onClick={() => {openModalRef(row.uuid)} } >
                                       <EditIcon  style={{fontSize : '16px'}}/>
-                                  </Button>
+                                  </Button> */}
+                                  
                                   {/* <Button 
                                       style={{ width: '12px', background: 'rgb(205 17 17)' }}
                                       variant="contained" 
